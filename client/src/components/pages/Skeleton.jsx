@@ -4,9 +4,11 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import "../../utilities.css";
 import "./Skeleton.css";
 import { UserContext } from "../App";
+import ImgUpload from "../modules/imgUpload.jsx";
 
 //temporary
 import { post } from "../../utilities.js";
+import AudioUpload from "../modules/audioUpload.jsx";
 
 
 const Skeleton = () => {
@@ -47,6 +49,9 @@ const Skeleton = () => {
       <button onClick = {() => {post("/api/imgUp");}}>
         imgTest
       </button>
+
+      <ImgUpload/>
+      <AudioUpload/>
     </>
   );
 };

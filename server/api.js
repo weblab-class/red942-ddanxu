@@ -8,17 +8,16 @@
 */
 
 //lets us call apis
-const fetch = require('node-fetch'); 
+const fetch = require("node-fetch");
 
+const multer = require("multer");
 //this lets us read the image files
-const fs = require('fs'); 
+const fs = require("fs");
 
 //makes sure paths dont fuck up
-const path = require('path'); 
+const path = require("path");
 
-const resMan = require("./resourceManage.js");
-
-const utils = require("../client/src/utilities.js")
+const utils = require("../client/src/utilities.js");
 
 const express = require("express");
 
@@ -56,50 +55,83 @@ router.post("/initsocket", (req, res) => {
 // | write your API methods below!|
 // |------------------------------|
 
-const imgUp2 = async (imagePath) => {
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const uploadToImgur = async (imageBuffer) => {
   try {
     // imgur needs the image as base64 string
-    const imageBuffer = fs.readFileSync(imagePath);
-    const base64Image = imageBuffer.toString('base64');
-    
-    const imgurClientID = process.env.imgurClientID;  
-    const apiUrl = 'https://api.imgur.com/3/image';
-    
+    const base64Image = imageBuffer.toString("base64");
+
+    const imgurClientID = process.env.imgurClientID;
+    const apiUrl = "https://api.imgur.com/3/image";
+
     //We manually do a fetch here instead of the post function in utilities.js
     //because we need different headers
     const response = await fetch(apiUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Client-ID ${imgurClientID}`,
-        'Content-Type': 'application/json'
+        Authorization: `Client-ID ${imgurClientID}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         image: base64Image,
-        type: 'base64' 
-      })
+        type: "base64",
+      }),
     });
 
     // Parse the JSON response
     const jsonResponse = await response.json();
-    
+
     //Check if the upload was successful
     if (jsonResponse.success) {
-      console.log('Image uploaded successfully:', jsonResponse.data.link);
+      console.log("Image uploaded successfully:", jsonResponse.data.link);
       return jsonResponse.data.link;
     } else {
       console.log(response);
-      throw new Error('Failed to upload image: ' + jsonResponse.data.error);
+      throw new Error("Failed to upload image: " + jsonResponse.data.error);
     }
   } catch (error) {
-    console.error('Image upload failed:', error);
+    console.error("Image upload failed:", error);
   }
 };
 
-router.post("/imgUp", (req, res) => {
-  console.log("api route has been called")
-  const imagePath = path.join(__dirname, 'favicon.png');
-  imgUp2(imagePath);
-})
+router.post("/imgUp", upload.single("image"), async (req, res) => {
+  console.log("made it here");
+  if (!req.file) {
+    console.log(req.body);
+    return res.status(400).send({ msg: "No File Upload" });
+  }
+
+  try {
+    // Call the uploadToImgur function with the image buffer
+    const imageUrl = await uploadToImgur(req.file.buffer);
+    res.status(200).send({ msg: "Image uploaded successfully", imageUrl });
+    console.log(imageUrl);
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).send({ msg: "Failed to upload image" });
+  }
+});
+
+router.post("/audioUp", upload.single("audio"), async (req, res) => {
+  console.log("made it here");
+  if (!req.file) {
+    console.log(req.body);
+    return res.status(400).send({ msg: "No File Upload" });
+  }
+
+  // try {
+  //   // Call the uploadToImgur function with the image buffer
+  //   const imageUrl = await uploadToImgur(req.file.buffer);
+  //   res.status(200).send({ msg: "Image uploaded successfully", imageUrl });
+  //   console.log(imageUrl)
+  // } catch (error) {
+  //   console.error("Error uploading image:", error);
+  //   res.status(500).send({ msg: "Failed to upload image" });
+  // }
+
+});
 
 // anything else falls to this "not found" case
 router.all("*", (req, res) => {
