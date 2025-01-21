@@ -9,6 +9,8 @@ import { socket } from "../client-socket";
 
 import { get, post } from "../utilities";
 
+import NavBar from "./modules/navBar";
+
 export const UserContext = createContext(null);
 
 /**
@@ -41,16 +43,13 @@ const App = () => {
     post("/api/logout");
   };
 
-  const authContextValue = {
-    userId,
-    handleLogin,
-    handleLogout,
-  };
-
   return (
-    <UserContext.Provider value={authContextValue}>
-      <Outlet />
-    </UserContext.Provider>
+    <>
+      <NavBar handleLogin={handleLogin} handleLogout={handleLogout} userId={userId} />
+      <div>
+        <Outlet context={{ userId: userId }} />
+      </div>
+    </>
   );
 };
 

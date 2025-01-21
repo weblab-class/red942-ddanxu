@@ -12,21 +12,8 @@ import AudioUpload from "../modules/audioUpload.jsx";
 
 
 const Skeleton = () => {
-  const { userId, handleLogin, handleLogout } = useContext(UserContext);
   return (
     <>
-      {userId ? (
-        <button
-          onClick={() => {
-            googleLogout();
-            handleLogout();
-          }}
-        >
-          Logout
-        </button>
-      ) : (
-        <GoogleLogin onSuccess={handleLogin} onError={(err) => console.log(err)} />
-      )}
       <h1>Good luck on your project </h1>
       <h2> What you need to change in this skeleton</h2>
       <ul>
