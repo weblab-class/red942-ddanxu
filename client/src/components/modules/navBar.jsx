@@ -12,7 +12,7 @@ props:
 const NavBar = (props) => {
   return (
     <nav className="NavBar-container">
-      <div className="NavBar-title u-inlineBlock">Catbook</div>
+      <div className="NavBar u-inlineBlock">VNForge</div>
       <div className="NavBar-linkContainer u-inlineBlock">
         <Link to="/" className="NavBar-link">
           Home

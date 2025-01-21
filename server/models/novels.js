@@ -6,8 +6,10 @@ const Novel = new mongoose.Schema({
   thumbnail: String,
   vars: [{ name: String, defaultVal: mongoose.Schema.Types.Mixed }], //varibles that arise from player choices
   editors: [mongoose.Schema.Types.ObjectId], //stored as userIds 
+  backgrounds: [{ name: String, link: String }],
   sprites: [{ name: String, link: String }], //sprites used in novel, link is to imgur from api
-  audios: [{ name: String, link: String }],
+  onPlayAudios: [{ name: String, link: String }],
+  bgms: [{ name: String, link: String }]
 });
 
 const Save = new mongoose.Schema({

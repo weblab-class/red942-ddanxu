@@ -91,3 +91,8 @@ vite.config.js
 ```
 
 ## Good luck on your project :)
+
+Uses:
+    Imgur API
+    Multer npm package
+    ffmpeg

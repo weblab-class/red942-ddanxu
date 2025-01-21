@@ -1,0 +1,1 @@
+For adding a collaborator to a project, have the server generate a temporary code that they can then match up.

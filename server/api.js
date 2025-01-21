@@ -7,6 +7,8 @@
 |
 */
 
+const imgur = require('./imgur.js');
+
 //lets us call apis
 const fetch = require("node-fetch");
 
@@ -22,16 +24,18 @@ const utils = require("../client/src/utilities.js");
 const express = require("express");
 
 // import models so we can interact with the database
-const User = require("./models/user");
+const User = require("./models/user.js");
+const {Novel} = require("./models/novels.js");
+const {Frame} = require("./models/frames.js")
 
 // import authentication library
-const auth = require("./auth");
+const auth = require("./auth.js");
 
 // api endpoints: all these paths will be prefixed with "/api/"
 const router = express.Router();
 
 //initialize socket
-const socketManager = require("./server-socket");
+const socketManager = require("./server-socket.js");
 
 router.post("/login", auth.login);
 router.post("/logout", auth.logout);
@@ -66,44 +70,6 @@ router.get("/user", (req, res) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const uploadToImgur = async (imageBuffer) => {
-  try {
-    // imgur needs the image as base64 string
-    const base64Image = imageBuffer.toString("base64");
-
-    const imgurClientID = process.env.imgurClientID;
-    const apiUrl = "https://api.imgur.com/3/image";
-
-    //We manually do a fetch here instead of the post function in utilities.js
-    //because we need different headers
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Client-ID ${imgurClientID}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        image: base64Image,
-        type: "base64",
-      }),
-    });
-
-    // Parse the JSON response
-    const jsonResponse = await response.json();
-
-    //Check if the upload was successful
-    if (jsonResponse.success) {
-      console.log("Image uploaded successfully:", jsonResponse.data.link);
-      return jsonResponse.data.link;
-    } else {
-      console.log(response);
-      throw new Error("Failed to upload image: " + jsonResponse.data.error);
-    }
-  } catch (error) {
-    console.error("Image upload failed:", error);
-  }
-};
-
 router.post("/imgUp", upload.single("image"), async (req, res) => {
   console.log("made it here");
   if (!req.file) {
@@ -113,7 +79,7 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
 
   try {
     // Call the uploadToImgur function with the image buffer
-    const imageUrl = await uploadToImgur(req.file.buffer);
+    const imageUrl = await imgur.uploadToImgur(req.file.buffer);
     res.status(200).send({ msg: "Image uploaded successfully", imageUrl });
     console.log(imageUrl);
   } catch (error) {
@@ -131,13 +97,52 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
 
   // try {
   //   // Call the uploadToImgur function with the image buffer
-  //   const imageUrl = await uploadToImgur(req.file.buffer);
+  //   const imageUrl = await imgur.uploadToImgur(req.file.buffer);
   //   res.status(200).send({ msg: "Image uploaded successfully", imageUrl });
   //   console.log(imageUrl)
   // } catch (error) {
   //   console.error("Error uploading image:", error);
   //   res.status(500).send({ msg: "Failed to upload image" });
   // }
+
+});
+
+router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
+  if (!req.file) {
+    console.log(req.body);
+    return res.status(400).send({ msg: "No Thumbnail Upload" });
+  }
+
+  const {name, userId} = req.body;
+  console.log(req.body);
+  console.log(userId);
+  const thumbnail = req.file;
+  const thumbnailLink = await imgur.uploadToImgur(thumbnail.buffer);
+  let frame = new Frame({
+    text: "Start editing your first leaf!",
+    // novelId
+  });
+  frame = await frame.save();
+  const frameId = frame._id;
+
+  let newNovel = new Novel({
+    name: name,
+    startFrameId: frameId,
+    thumbnail: thumbnailLink,
+    vars: [],
+    editors: [userId],
+    sprites: [],
+    onPlayAudios: [],
+    bgms: [],
+    backgrounds: [{name: "Thumbnail",link: thumbnailLink}]
+  });
+  newNovel = await newNovel.save();
+  const novelId = newNovel._id;
+
+  await Frame.findByIdAndUpdate(
+    frameId,
+    {novelId: novelId}
+  );
 
 });
 

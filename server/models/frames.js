@@ -10,7 +10,7 @@ const Frame = new mongoose.Schema({
   onPlayAudio: String, //audio for when the frame is played, does not continue
   text: String, //text displayed for this frame
   novelId: mongoose.Schema.Types.ObjectId, //id of novel that the frame is apart of
-  isBranch: false,
+  isBranch: {type: Boolean, default: false},
 });
 
 const BranchFrame = new mongoose.Schema({
@@ -22,7 +22,7 @@ const BranchFrame = new mongoose.Schema({
     },
   ],
   defaultFrame: mongoose.Schema.Types.ObjectId, //backup frame if none of the conditions matched up
-  isBranch: true,
+  isBranch: {type: Boolean, default: true},
 });
 
 BranchFrame.add(Frame);

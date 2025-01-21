@@ -18,10 +18,10 @@ const AudioUpload = () => {
     }
 
     const formData = new FormData();
-    formData.append("audio", file); 
+    formData.append("audio", file);
 
     try {
-      const response = await post("/api/audioUp", formData, {}); 
+      const response = await post("/api/audioUp", formData, {});
       console.log(response);
     } catch (error) {
       console.error("Error uploading audio:", error);
@@ -32,7 +32,7 @@ const AudioUpload = () => {
     <div>
       <h2>Upload an Audio File</h2>
       <form onSubmit={submitAudio}>
-        <input type="file" onChange={handleFileChange} accept="audio/*" /> 
+        <input type="file" onChange={handleFileChange} accept="audio/*" />
         <button type="submit">Upload</button>
       </form>
     </div>
