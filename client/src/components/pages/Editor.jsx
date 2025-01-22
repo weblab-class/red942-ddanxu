@@ -30,6 +30,10 @@ const Editor = () => {
     }
   };
 
+  const togglePublic = async () => {
+    await post("/api/togglePublic", {novelId: novel._id});
+  }
+
   if (!frame) {
     return <h2>loading...</h2>;
   }
@@ -55,6 +59,10 @@ const Editor = () => {
       <div>
         <h1>Next Frame?</h1>
         <button onClick={nextFrame}>next</button>
+      </div>
+      <div>
+        <h1>Toggle Public</h1>
+        <button onClick={togglePublic}>toggle</button>
       </div>
       
     </>

@@ -170,6 +170,14 @@ router.get("/audioAsBlob", async (req, res) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+router.post("/togglePublic", async (req, res) => {
+  const {novelId} = req.body;
+  const novel = await Novel.findById(novelId);
+  novel.isPublic = !novel.isPublic;
+  await novel.save();
+  return res.status(200).send({msg: "swapped!"});
+});
+
 router.post("/imgUp", upload.single("image"), async (req, res) => {
   if (!req.file) {
     return res.status(400).send({ msg: "No File Upload" });
