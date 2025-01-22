@@ -8,8 +8,8 @@ const Novel = new mongoose.Schema({
   editors: [mongoose.Schema.Types.ObjectId], //stored as userIds 
   backgrounds: [{ name: String, link: String }],
   sprites: [{ name: String, link: String }], //sprites used in novel, link is to imgur from api
-  onPlayAudios: [{ name: String, link: String }],
-  bgms: [{ name: String, link: String }]
+  onPlayAudios: [{ name: String, links: [String] }],
+  bgms: [{ name: String, links: [String] }]
 });
 
 const Save = new mongoose.Schema({

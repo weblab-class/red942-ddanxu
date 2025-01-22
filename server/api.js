@@ -118,6 +118,43 @@ router.get("/spritesFromFrame", async (req, res) => {
   return res.status(200).send({ sprites: sprites });
 });
 
+router.get("/bgmsFromFrame", async (req, res) => {
+  const frameId = req.query.frameId;
+  if (!frameId) {
+    return res.status(400).send({ error: "frameId is required" });
+  }
+
+  const novelId = await frameToNovel(frameId);
+  const novel = await Novel.findById(novelId);
+  const bgms = novel.bgms;
+  return res.status(200).send({ bgms: bgms });
+});
+
+router.get("/onPlaysFromFrame", async (req, res) => {
+  const frameId = req.query.frameId;
+  if (!frameId) {
+    return res.status(400).send({ error: "frameId is required" });
+  }
+
+  const novelId = await frameToNovel(frameId);
+  const novel = await Novel.findById(novelId);
+  const onPlays = novel.onPlayAudios;
+  return res.status(200).send({ onPlayAudios: onPlays });
+});
+
+router.get("/audioAsBlob", async (req, res) => {
+  const links = req.query.links;
+  if (!links) {
+    return res.status(400).send({ error: "links are required" });
+  }
+
+  const blob = await audioStore.getAudio(links);
+  console.log(blob instanceof Blob);
+  res.setHeader('Content-Type', 'audio/mp3');
+  res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
+  const arrayBuffer = await blob.arrayBuffer();
+  return res.status(200).send(Buffer.from(arrayBuffer));
+})
 //------------------POST-----------------------
 
 const storage = multer.memoryStorage();
@@ -169,6 +206,8 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
     return res.status(400).send({ msg: "No File Upload" });
   }
 
+  const { name, frameId, type }= req.body;
+
   const extension = path.extname(req.file.originalname).slice(1);
   const supportedExtensions = ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'amr'];
   if (!supportedExtensions.includes(extension.toLowerCase())) {
@@ -176,6 +215,21 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
   }
 
   const result = await audioStore.uploadAudio(req.file.buffer, extension);
+  const frame = await Frame.findById(frameId);
+  const novelId = frame.novelId;
+  const novel = await Novel.findById(novelId);
+
+  if (type == 'bgm') {
+    novel.bgms = [...(novel.bgms || []), {name: name, links: result}]
+    frame.bgm = result;
+  } else {
+    novel.onPlayAudios = [...(novel.onPlayAudios || []), {name: name, links: result}]
+    frame.onPlayAudio = result;
+  }
+
+  await novel.save();
+  await frame.save();
+
   res.status(200).send({links: result});
 });
 
@@ -251,6 +305,23 @@ router.post("/setright", async (req, res) => {
   await frame.save();
   return res.status(200).send({ link: link });
 });
+
+router.post("/setbgm", async (req, res) => {
+  const { links, frameId } = req.body;
+  const frame = await Frame.findById(frameId);
+  frame.bgm = links;
+  await frame.save();
+  return res.status(200).send({ links: links });
+});
+
+router.post("/setonPlay", async (req, res) => {
+  const { links, frameId } = req.body;
+  const frame = await Frame.findById(frameId);
+  frame.onPlayAudio = links;
+  await frame.save();
+  return res.status(200).send({ links: links });
+});
+
 //-----------------MISC----------------------------
 
 // anything else falls to this "not found" case

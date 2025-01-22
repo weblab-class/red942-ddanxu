@@ -10,11 +10,16 @@
 
 // ex: formatParams({ some_key: "some_value", a: "b"}) => "some_key=some_value&a=b"
 function formatParams(params) {
-  // iterate of all the keys of params as an array,
-  // map it to a new array of URL string encoded key,value pairs
-  // join all the url params using an ampersand (&).
   return Object.keys(params)
-    .map((key) => key + "=" + encodeURIComponent(params[key]))
+    .map((key) => {
+      const value = params[key];
+      if (Array.isArray(value)) {
+        return value
+          .map((item) => key + "=" + encodeURIComponent(item))
+          .join("&");
+      }
+      return key + "=" + encodeURIComponent(value);
+    })
     .join("&");
 }
 
@@ -37,14 +42,30 @@ function convertToJSON(res) {
 
 // Helper code to make a get request. Default parameter of empty JSON Object for params.
 // Returns a Promise to a JSON Object.
-export function get(endpoint, params = {}) {
+export async function get(endpoint, params = {}) {
   const fullPath = endpoint + "?" + formatParams(params);
-  return fetch(fullPath)
-    .then(convertToJSON)
-    .catch((error) => {
-      // give a useful error message
-      throw `GET request to ${fullPath} failed with error:\n${error}`;
-    });
+
+  try {
+    const response = await fetch(fullPath);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch from ${fullPath}`);
+    }
+
+    const contentType = response.headers.get("Content-Type");
+
+    if (contentType && contentType.startsWith("audio/")) {
+      // If it's audio, return the response as a Blob
+      const blob = await response.blob();
+      console.log("blob is " + blob);
+      return blob;
+    } else {
+      // Otherwise, parse the response as JSON
+      return await response.json();
+    }
+  } catch (error) {
+    throw new Error(`GET request to ${fullPath} failed with error:\n${error}`);
+  }
 }
 
 // Helper code to make a post request. Default parameter of empty JSON Object for params.

@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { get } from "../../utilities";
 import "./Editor.css";
 import ImageSelect from "../modules/imageSelect";
+import AudioSelect from "../modules/audioSelect";
 
 const Editor = () => {
   const location = useLocation();
@@ -30,6 +31,10 @@ const Editor = () => {
         <ImageSelect frame={frame} type="left" />
         <ImageSelect frame={frame} type="mid" />
         <ImageSelect frame={frame} type="right" />
+      </span>
+      <span>
+        <AudioSelect frame={frame} type="bgm"/>
+        <AudioSelect frame={frame} type="onPlay"/>
       </span>
     </>
   );

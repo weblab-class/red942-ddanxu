@@ -5,6 +5,11 @@ import { post, get } from "../../utilities";
 props
     frame
     type (bg, left, mid, right)
+
+    @TODO shouldn't store the stuff in the db if it doesn't have an associated link when it fails
+    @TODO selector should change upon loading in to previously saved
+      harder than it sounds as currently just storing the link and don't know what name it is
+    @TODO make names unique
 */
 
 const ImageSelect = (props) => {

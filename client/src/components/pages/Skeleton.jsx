@@ -7,7 +7,6 @@ import { UserContext } from "../App";
 
 //temporary
 import { post } from "../../utilities.js";
-import AudioUpload from "../modules/audioUpload.jsx";
 
 
 const Skeleton = () => {
@@ -36,7 +35,6 @@ const Skeleton = () => {
         imgTest
       </button>
 
-      <AudioUpload/>
     </>
   );
 };

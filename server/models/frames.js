@@ -7,8 +7,8 @@ const Frame = new mongoose.Schema({
   spriteMid: String,
   spriteRight: String,
   background: String,
-  bgmLink: String, //link to imgur background music mp4
-  onPlayAudio: String, //audio for when the frame is played, does not continue
+  bgm: [String], //link to imgur background music mp4
+  onPlayAudio: [String], //audio for when the frame is played, does not continue
   text: String, //text displayed for this frame
   novelId: mongoose.Schema.Types.ObjectId, //id of novel that the frame is apart of
   isBranch: {type: Boolean, default: false},
