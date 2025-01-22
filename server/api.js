@@ -50,8 +50,8 @@ router.post("/initsocket", (req, res) => {
 const frameToNovel = async (frameId) => {
   const frame = await Frame.findById(frameId);
   const novelId = frame.novelId;
-  return(novelId);
-}
+  return novelId;
+};
 
 //-------------------------GET--------------------
 
@@ -92,16 +92,15 @@ router.get("/novel", async (req, res) => {
 });
 
 router.get("/bgsFromFrame", async (req, res) => {
-  const frameId= req.query.frameId;
+  const frameId = req.query.frameId;
   if (!frameId) {
     return res.status(400).send({ error: "frameId is required" });
-    
   }
 
   const novelId = await frameToNovel(frameId);
   const novel = await Novel.findById(novelId);
   const bgs = novel.backgrounds;
-  return res.status(200).send({backgrounds: bgs});
+  return res.status(200).send({ backgrounds: bgs });
 });
 
 router.get("/spritesFromFrame", async (req, res) => {
@@ -109,16 +108,14 @@ router.get("/spritesFromFrame", async (req, res) => {
   if (!frameId) {
     return res.status(400).send({ error: "frameId is required" });
   }
-  
 
   const novelId = await frameToNovel(frameId);
   const novel = await Novel.findById(novelId);
   const sprites = novel.sprites;
-  return res.status(200).send({sprites: sprites});
+  return res.status(200).send({ sprites: sprites });
 });
 
 //------------------POST-----------------------
-
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -128,7 +125,7 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
     return res.status(400).send({ msg: "No File Upload" });
   }
 
-  const {name, frameId, type} = req.body;
+  const { name, frameId, type } = req.body;
 
   try {
     // Call the uploadToImgur function with the image buffer
@@ -136,26 +133,26 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
     const frame = await Frame.findById(frameId);
     const novelId = frame.novelId;
     const novel = await Novel.findById(novelId);
-    if (type === 'bg') {
-      novel.backgrounds = [...(novel.backgrounds || []), {name: name, link: imageUrl}];
+    if (type === "bg") {
+      novel.backgrounds = [...(novel.backgrounds || []), { name: name, link: imageUrl }];
       frame.background = imageUrl;
     } else {
-      novel.sprites = [...(novel.sprites || []), {name: name, link: imageUrl}];
+      novel.sprites = [...(novel.sprites || []), { name: name, link: imageUrl }];
       switch (type) {
-        case 'left':
+        case "left":
           frame.spriteLeft = imageUrl;
           break;
-        case 'mid':
+        case "mid":
           frame.spriteMid = imageUrl;
           break;
-        case 'right':
+        case "right":
           frame.spriteRight = imageUrl;
           break;
       }
     }
     await novel.save();
     await frame.save();
-    res.status(200).send({link: imageUrl});
+    res.status(200).send({ link: imageUrl });
   } catch (error) {
     console.error("Error uploading image:", error);
     res.status(500).send({ msg: "Failed to upload image" });
@@ -213,6 +210,11 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
 
   await Frame.findByIdAndUpdate(frameId, { novelId: novelId });
 
+  const user = await User.findById(userId);
+  const editing = user.editing;
+  user.editing = [...editing, { novelId: novelId, frameId: frameId }];
+  await user.save();
+
   return res.status(200).send({ novelId: novelId });
 });
 
@@ -245,7 +247,7 @@ router.post("/setright", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteRight = link;
   await frame.save();
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 //-----------------MISC----------------------------
 

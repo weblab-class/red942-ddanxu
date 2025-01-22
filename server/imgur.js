@@ -254,7 +254,7 @@ export const uploadToImgur = async (imageBuffer) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();  // Read the response body as text to help debug
+      const errorText = await response.text(); // Read the response body as text to help debug
       throw new Error(`Failed to upload image. Status: ${response.status}. Response: ${errorText}`);
     }
 
