@@ -40,15 +40,8 @@ const Player = () => {
     });
   }, [location.state]);
 
-  const refresh = () => {
-    setTimeout(() => {
-      window.location.reload();
-    }, 50);
-  };
-
   const nextFrame = async () => {
     if (frame.nextFrame != undefined) {
-      refresh();
 
       navigate("/player/" + frame.nextFrame, {
         state: {

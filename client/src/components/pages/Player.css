@@ -2,10 +2,10 @@ body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background-color: rgb(16, 41, 53);
-    color: white;
+    background-color: rgb(25, 64, 82);
+    color: rgb(255, 255, 255);
   }
-  
+
   /* Wrapper for the visual novel scene */
   .visual-novel {
     position: relative;
@@ -66,7 +66,7 @@ body {
     padding: 10px 20px;
     font-size: 16px;
     color: white;
-    background-color: #007BFF;
+    background-color: #21bea4;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -74,5 +74,5 @@ body {
   }
   
   .visual-novel button:hover {
-    background-color: #0056b3;
+    background-color: #096d70;
   }
