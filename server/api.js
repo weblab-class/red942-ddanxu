@@ -27,6 +27,7 @@ const router = express.Router();
 
 //initialize socket
 const socketManager = require("./server-socket.js");
+const user = require("./models/user.js");
 
 //---------Auth-------------
 
@@ -370,6 +371,15 @@ router.post("/setText", async (req, res) => {
   frame.text = text;
   await frame.save();
   return res.status(200).send(text);
+});
+
+//@TODO make this make a save
+router.post("/userPlayNew", async (req, res) => {
+  const {userId, novelId, frameId} = req.body;
+  const user = await User.findById(userId);
+  user.playing = [...(user.playing || []), {novelId: novelId, saveId: null}];
+  user.save();
+  return res.status(200);
 });
 
 //-----------------MISC----------------------------

@@ -6,7 +6,7 @@ import PopupForm from "../modules/newNovelForm";
 
 /*
 Props:
-    user._id as stored in mongo
+    userId as stored in mongo
 
 @TODO
 make the load more and go back buttons do stuff, use a useState for playing and editing
@@ -33,10 +33,10 @@ const Profile = () => {
     }
     for (let i = 0; i < arr.length; i++) {
       if (!editing)
-        arr[i] = <NovelPreview novelId={arr[i].novelId} secondId={arr[i].saveId} type="play" />;
+        arr[i] = <NovelPreview novelId={arr[i].novelId} secondId={arr[i].saveId} userId = {props.userId} type="play" />;
       else
         arr[i] = (
-          <NovelPreview novelId={arr[i].novelId} secondIdId={arr[i].frameId} type={"edit"} />
+          <NovelPreview novelId={arr[i].novelId} secondIdId={arr[i].frameId} userId = {props.userId} type={"edit"} />
         );
     }
 

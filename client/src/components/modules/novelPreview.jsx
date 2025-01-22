@@ -6,6 +6,7 @@ props:
     type (play, edit)
     {novelId, secondId}
         == {novelId, saveId} or {novelId, frameId}
+    userId
 
 @TODO
 make this
@@ -15,7 +16,7 @@ const NovelPreview = (props) => {
     const [novel, setNovel] = useState();
     const navigate = useNavigate();
 
-    const {novelId, secondId} = props;
+    const {novelId, secondId, userId} = props;
 
     useEffect(() => {
         get('/api/novel', {novelId: novelId}).then((res) => setNovel(res.novel));
@@ -26,16 +27,29 @@ const NovelPreview = (props) => {
         navigate('/editor/' + secondId, {
             state: {
                 novelId: novelId,
-                frameId: secondId
+                frameId: secondId,
+                userId: userId
             }
         });
     } : () => {
-        navigate('/api/player', {
-            state: {
-                novelId: novelId,
-                frameId: secondId
-            }
-        });
+        if (secondId === null) {
+            navigate('/player/' + secondId, {
+                state: {
+                    novelId: novelId,
+                    frameId: undefined,
+                    userId: userId
+                }
+            });
+        } else {
+            navigate('/player/' + secondId, {
+                state: {
+                    novelId: novelId,
+                    frameId: secondId,
+                    userId: userId
+                }
+            });
+        }
+        
     };
 
 

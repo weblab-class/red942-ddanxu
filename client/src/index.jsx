@@ -5,6 +5,7 @@ import Skeleton from "./components/pages/Skeleton";
 import NotFound from "./components/pages/NotFound";
 import Profile from "./components/pages/Profile";
 import Editor from "./components/pages/Editor";
+import Player from "./components/pages/Player";
 
 import {
   createBrowserRouter,
@@ -24,6 +25,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Skeleton />}/>
       <Route path="/profile/:userId" element={<Profile />}/>
       <Route path="/editor/:frameId" element={<Editor/>}/>
+      <Route path="/player/:frameId" element={<Player/>}/>
     </Route>
   )
 )

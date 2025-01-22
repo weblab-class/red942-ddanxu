@@ -45,7 +45,9 @@ const Editor = () => {
         state: {
           novelId: novel._id,
           frameId: frame.nextFrame,
-        }, replace: true
+          userId: location.state.userId
+        },
+        replace: true,
       });
     } else {
       console.log("creating new frame");
@@ -55,13 +57,25 @@ const Editor = () => {
         state: {
           novelId: novel._id,
           frameId: next.frameId,
-        }, replace: true
+          userId: location.state.userId
+        },
+        replace: true,
       });
     }
   };
 
   const togglePublic = async () => {
     await post("/api/togglePublic", { novelId: novel._id });
+  };
+
+  const play = () => {
+    navigate("/player/" + frame._id, {
+      state: {
+        novelId: novel._id,
+        frameId: frame._id,
+        userId: location.state.userId
+      },
+    });
   };
 
   if (!frame) {
@@ -95,6 +109,8 @@ const Editor = () => {
         <h1>Toggle Public</h1>
         <button onClick={togglePublic}>toggle</button>
       </div>
+
+      <button onClick={play}>Play this frame</button>
     </>
   );
 };
