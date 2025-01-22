@@ -9,7 +9,8 @@ const Novel = new mongoose.Schema({
   backgrounds: [{ name: String, link: String }],
   sprites: [{ name: String, link: String }], //sprites used in novel, link is to imgur from api
   onPlayAudios: [{ name: String, links: [String] }],
-  bgms: [{ name: String, links: [String] }]
+  bgms: [{ name: String, links: [String] }],
+  isPublic: {type: Boolean, default: false}
 });
 
 const Save = new mongoose.Schema({

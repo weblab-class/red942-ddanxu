@@ -6,6 +6,9 @@ import ImageSelect from "../modules/imageSelect";
 import AudioSelect from "../modules/audioSelect";
 import TextSelect from "../modules/textSelect";
 
+/*
+@TODO add a publish button that changes the public value of the Novel
+*/
 const Editor = () => {
   const location = useLocation();
   const [frame, setFrame] = useState();
