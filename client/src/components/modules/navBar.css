@@ -1,0 +1,66 @@
+.NavBar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertically center items */
+    padding: 8px 16px;
+    background-color: #2f2442; /* Dark background */
+  }
+  
+  .NavBar {
+    font-size: 1.2em; /* Slightly smaller brand text */
+    color: #f1f1f1; /* Light text for the brand */
+    font-weight: bold;
+  }
+  
+  .NavBar-linkContainer {
+    display: flex;
+    align-items: center; /* Vertically center the links */
+    gap: 15px;
+  }
+  
+  .NavBar-link {
+    color: #b3b3b3; /* Soft light color for links */
+    text-decoration: none;
+    font-size: 1em; /* Smaller text size */
+    transition: color 0.3s;
+  }
+  
+  .NavBar-link:hover {
+    color: #f1f1f1; /* Highlight on hover */
+  }
+  
+  .NavBar-login {
+    color: #4CAF50; /* Green color for login button */
+    text-decoration: none;
+    font-size: 1em; /* Smaller size for consistency */
+    transition: color 0.3s;
+  }
+  
+  .NavBar-login:hover {
+    color: #66BB6A; /* Slightly lighter green for hover effect */
+  }
+  
+  button {
+    background: none;
+    border: 1px solid #f1f1f1;
+    color: #f1f1f1;
+    padding: 6px 12px; /* Smaller padding */
+    font-size: 0.9em; /* Slightly smaller text */
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #4b3163; /* Darker background on hover */
+  }
+  
+  .NavBar-link:last-child { /* Profile button */
+    color: #b3b3b3; /* Same as other links */
+    text-decoration: none;
+    font-size: 1em; /* Small size */
+    transition: color 0.3s;
+  }
+  
+  .NavBar-link:last-child:hover {
+    color: #f1f1f1; /* Highlight on hover */
+  }

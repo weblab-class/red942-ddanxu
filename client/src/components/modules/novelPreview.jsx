@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { get } from "../../utilities";
+import './novelPreview.css'
 /*
 props:
     type (play, edit)
@@ -8,8 +9,6 @@ props:
         == {novelId, saveId} or {novelId, frameId}
     userId
 
-@TODO
-make this
  */
 
 const NovelPreview = (props) => {
@@ -54,8 +53,8 @@ const NovelPreview = (props) => {
 
 
     return (!novel)? (<>Loading...</>):(
-        <div onClick={clicked}>
-            <img src = {novel.thumbnail}></img>
+        <div onClick={clicked} className="card">
+            <img src={novel.thumbnail} alt={novel.name}></img>
             <h4>{novel.name}</h4>
         </div>
     );

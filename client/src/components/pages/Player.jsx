@@ -14,7 +14,7 @@ const Player = () => {
     let frameId = null;
 
     get("/api/novel", { novelId: location.state.novelId }).then((res) => {
-      Document.title = res.novel.name;
+      document.title = res.novel.name;
       setNovel(res.novel);
       if (typeof location.state.frameId != "undefined") {
         frameId = location.state.frameId;
@@ -59,11 +59,10 @@ const Player = () => {
 
   return (
     <div className="visual-novel" style={{ backgroundImage: `url(${frame.background})` }}>
-      <h1>Playing {novel.name}</h1>
       {frame.spriteLeft && <img src={frame.spriteLeft} className="sprite-left" alt="sprite"/>}
       {frame.spriteMid && <img src={frame.spriteMid} className="sprite-mid" alt="sprite"/>}
       {frame.spriteRight && <img src={frame.spriteRight} className="sprite-right" alt="sprite"/>}
-      <h3>{frame.text}</h3>
+      {frame.text && <h3>{frame.text}</h3>}
       <button onClick={nextFrame}>next</button>
     </div>
   );

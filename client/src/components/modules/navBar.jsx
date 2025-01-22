@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-
+import "./navBar.css"
 
 /*
 props:
@@ -18,7 +18,7 @@ const NavBar = (props) => {
           Home
         </Link>
         {props.userId && (
-          <Link to={`/profile/${props.userId}`}>
+          <Link to={`/profile/${props.userId}`} className="NavBar-link">
             Profile
           </Link>
         )}

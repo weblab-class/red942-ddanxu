@@ -1,0 +1,33 @@
+.card {
+    width: 15vw;  /* 15% of the viewport width */
+    height: 25vh;  /* Adjust the height to fit the content */
+    background-color: rgb(10, 99, 99);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;  /* Reduced padding around the entire card */
+}
+
+.card img {
+    width: 90%;  /* Increased image width for less margin */
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 5px;  /* Reduced margin below the image */
+}
+
+.card h4 {
+    font-size: 1.2rem;
+    margin-top: 5px;  /* Reduced margin above the text */
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s;
+}
