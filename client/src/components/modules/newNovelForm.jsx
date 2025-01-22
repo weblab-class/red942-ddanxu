@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { post } from "../../utilities";
+import { useNavigate } from "react-router-dom";
 
+/*
+@TODO
+make a loading text appear whenever you press the create button
+*/
 const PopupForm = (props) => {
   const [showPopup, setShowPopup] = useState(false);
   const [name, setName] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -15,6 +21,12 @@ const PopupForm = (props) => {
     formData.append("userId", props.userId);
 
     const response = await post("/api/newNovel", formData, {});
+
+    navigate('/editor', {
+        state: {
+            novelId: response.novelId
+        }
+    });
   };
 
   return (

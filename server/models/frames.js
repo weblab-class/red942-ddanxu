@@ -6,6 +6,7 @@ const Frame = new mongoose.Schema({
   spriteLeft: String, //sprite on the left side of screen
   spriteMid: String,
   spriteRight: String,
+  background: String,
   bgmLink: String, //link to imgur background music mp4
   onPlayAudio: String, //audio for when the frame is played, does not continue
   text: String, //text displayed for this frame

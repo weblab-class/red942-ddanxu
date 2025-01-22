@@ -4,7 +4,6 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import "../../utilities.css";
 import "./Skeleton.css";
 import { UserContext } from "../App";
-import ImgUpload from "../modules/imgUpload.jsx";
 
 //temporary
 import { post } from "../../utilities.js";
@@ -37,7 +36,6 @@ const Skeleton = () => {
         imgTest
       </button>
 
-      <ImgUpload/>
       <AudioUpload/>
     </>
   );
