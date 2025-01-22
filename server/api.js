@@ -293,8 +293,12 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
 });
 
 router.post('/nextFrame', async (req, res) => {
+  console.log("made it here");
   const {oldFrameId} = req.body;
+
+  console.log(oldFrameId);
   oldFrame = await Frame.findById(oldFrameId);
+  console.log("Got old frame?");
 
   const newFrame = new Frame({
     prevFrames : [oldFrame._id],
@@ -308,7 +312,7 @@ router.post('/nextFrame', async (req, res) => {
   const frame = await newFrame.save();
   oldFrame.nextFrame = frame._id;
   await oldFrame.save();
-  return res.status(200).send({frame: frame._id});
+  return res.status(200).send({frameId: frame._id});
 });
 
 router.post("/setbg", async (req, res) => {
@@ -316,7 +320,8 @@ router.post("/setbg", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.background = link;
   await frame.save();
-  return res.status(200).send(link);
+  console.log("bg set for " + frameId);
+  return res.status(200).send({link: link});
 });
 
 router.post("/setleft", async (req, res) => {
@@ -324,7 +329,7 @@ router.post("/setleft", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteLeft = link;
   await frame.save();
-  return res.status(200).send(link);
+  return res.status(200).send({link: link});
 });
 
 router.post("/setmid", async (req, res) => {
@@ -332,7 +337,7 @@ router.post("/setmid", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteMid = link;
   await frame.save();
-  return res.status(200).send(link);
+  return res.status(200).send({link: link});
 });
 
 router.post("/setright", async (req, res) => {

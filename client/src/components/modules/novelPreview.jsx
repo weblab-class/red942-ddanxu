@@ -12,7 +12,6 @@ make this
  */
 
 const NovelPreview = (props) => {
-    console.log("mafe it here")
     const [novel, setNovel] = useState();
     const navigate = useNavigate();
 
@@ -24,7 +23,7 @@ const NovelPreview = (props) => {
 
     const clicked = (props.type == "edit")? () => {
         console.log("clicked has run!")
-        navigate('/editor', {
+        navigate('/editor/' + secondId, {
             state: {
                 novelId: novelId,
                 frameId: secondId

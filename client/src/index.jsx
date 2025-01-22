@@ -23,7 +23,7 @@ const router = createBrowserRouter(
     <Route errorElement={<NotFound />} element={<App />}>
       <Route path="/" element={<Skeleton />}/>
       <Route path="/profile/:userId" element={<Profile />}/>
-      <Route path="/editor" element={<Editor/>}/>
+      <Route path="/editor/:frameId" element={<Editor/>}/>
     </Route>
   )
 )
