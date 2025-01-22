@@ -5,6 +5,8 @@ import { post, get } from "../../utilities";
 props
   type (bgm or onPlay)
   frame
+
+  @TODO changing the drop down doesn't appear to switch the preview audio, but it still works the same in the back end
 */
 const AudioSelect = (props) => {
   const frameId = props.frame._id;

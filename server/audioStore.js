@@ -175,6 +175,5 @@ export const getAudio = async (links) => {
   const blobs = await Promise.all(links.map(getMp4ImgurBlob));
   const combined = await combineMp4(blobs);
   const blob = await extractMp3FromMp4(combined);
-  console.log(blob instanceof Blob);
   return blob;
 };

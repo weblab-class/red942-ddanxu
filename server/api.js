@@ -142,13 +142,22 @@ router.get("/onPlaysFromFrame", async (req, res) => {
   return res.status(200).send({ onPlayAudios: onPlays });
 });
 
+router.get('/text', async (req, res) => {
+  const frameId = req.query.frameId;
+  if (!frameId) {
+    return res.status(400).send({ error: "frameId is required" });
+  }
+
+  const frame = await Frame.findById(frameId);
+  const text = frame.text;
+  return res.status(200).send({text: text});
+});
+
 router.get("/audioAsBlob", async (req, res) => {
   const links = req.query.links;
   if (!links) {
     return res.status(400).send({ error: "links are required" });
   }
-
-  console.log(links instanceof Array);
 
   const blob = await audioStore.getAudio(links);
   res.setHeader('Content-Type', 'audio/mp3');
@@ -275,6 +284,25 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
   return res.status(200).send({ novelId: novelId });
 });
 
+router.post('/nextFrame', async (req, res) => {
+  const {oldFrameId} = req.body;
+  oldFrame = await Frame.findById(oldFrameId);
+
+  const newFrame = new Frame({
+    prevFrames : [oldFrame._id],
+    novelId : oldFrame.novelId,
+    spriteLeft: oldFrame.spriteLeft,
+    spriteMid: oldFrame.spriteMid,
+    spriteRight: oldFrame.spriteRight,
+    background: oldFrame.background,
+    bgm: oldFrame.bgm
+  });
+  const frame = await newFrame.save();
+  oldFrame.nextFrame = frame._id;
+  await oldFrame.save();
+  return res.status(200).send({frame: frame._id});
+});
+
 router.post("/setbg", async (req, res) => {
   const { link, frameId } = req.body;
   const frame = await Frame.findById(frameId);
@@ -321,6 +349,14 @@ router.post("/setonPlay", async (req, res) => {
   frame.onPlayAudio = links;
   await frame.save();
   return res.status(200).send({ links: links });
+});
+
+router.post("/setText", async (req, res) => {
+  const { text, frameId } = req.body;
+  const frame = await Frame.findById(frameId);
+  frame.text = text;
+  await frame.save();
+  return res.status(200).send(text);
 });
 
 //-----------------MISC----------------------------
