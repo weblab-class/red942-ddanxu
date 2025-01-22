@@ -10,6 +10,9 @@
 const imgur = require("./imgur.js");
 const multer = require("multer");
 const express = require("express");
+const audioStore = require("./audioStore.js");
+const path = require("path");
+
 
 // import models so we can interact with the database
 const User = require("./models/user.js");
@@ -166,15 +169,14 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
     return res.status(400).send({ msg: "No File Upload" });
   }
 
-  // try {
-  //   // Call the uploadToImgur function with the image buffer
-  //   const imageUrl = await imgur.uploadToImgur(req.file.buffer);
-  //   res.status(200).send({ msg: "Image uploaded successfully", imageUrl });
-  //   console.log(imageUrl)
-  // } catch (error) {
-  //   console.error("Error uploading image:", error);
-  //   res.status(500).send({ msg: "Failed to upload image" });
-  // }
+  const extension = path.extname(req.file.originalname).slice(1);
+  const supportedExtensions = ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'amr'];
+  if (!supportedExtensions.includes(extension.toLowerCase())) {
+    throw new Error(`Unsupported audio format: ${extension}`);
+  }
+
+  const result = await audioStore.uploadAudio(req.file.buffer, extension);
+  res.status(200).send({links: result});
 });
 
 router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
