@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: rgb(16, 41, 53);
+    color: white;
+  }
+  
+  /* Wrapper for the visual novel scene */
+  .visual-novel {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-size: cover; /* Ensures full coverage */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents tiling */
+  }
+  
+  .sprite-left {
+    position: absolute;
+    bottom: 20%;
+    left: 10%;
+    z-index: 2;
+    max-height: 50%;
+    object-fit: contain;
+  }
+  
+  .sprite-mid {
+    position: absolute;
+    bottom: 20%;
+    left: 40%;
+    z-index: 2;
+    max-height: 50%;
+    object-fit: contain;
+  }
+  
+  .sprite-right {
+    position: absolute;
+    bottom: 20%;
+    right: 10%;
+    z-index: 2;
+    max-height: 50%;
+    object-fit: contain;
+  }
+  
+  /* Text box styling */
+  .visual-novel h3 {
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
+    right: 5%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid white;
+    border-radius: 10px;
+    z-index: 3;
+    text-align: center;
+  }
+  
+  /* Next button styling */
+  .visual-novel button {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 3;
+  }
+  
+  .visual-novel button:hover {
+    background-color: #0056b3;
+  }
