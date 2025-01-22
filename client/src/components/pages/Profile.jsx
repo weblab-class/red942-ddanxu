@@ -32,15 +32,18 @@ const Profile = () => {
       arr.push(source[i]);
     }
     for (let i = 0; i < arr.length; i++) {
-      if (!editing) arr[i] = <NovelPreview novelId={arr[i].novelId} saveId={arr[i].saveId} />;
+      if (!editing)
+        arr[i] = <NovelPreview novelId={arr[i].novelId} secondId={arr[i].saveId} type="play" />;
       else
-        arr[i] = <NovelPreview novelId={arr[i].novelId} frameId={arr[i].frameId} editor={true} />;
+        arr[i] = (
+          <NovelPreview novelId={arr[i].novelId} secondIdId={arr[i].frameId} type={"edit"} />
+        );
     }
 
     return { array: arr, endIndex: startindex + arr.length };
   };
 
-  let {array: playing, endIndex: playingIndex } = grab5(0, user.playing, false);
+  let { array: playing, endIndex: playingIndex } = grab5(0, user.playing, false);
 
   if (playing.length === 0) playing = <p>Looks like you haven't started any!</p>;
 
@@ -53,22 +56,20 @@ const Profile = () => {
       <h1>Hello {user.name}!</h1>
       <section>
         <h3>You are currently playing:</h3>
-        {playing}
+        <span>{playing}</span>
         {playingIndex > 5 ? <button>Go Back</button> : <></>}
         {user.playing.length > playingIndex ? <button>Next page</button> : <></>}
       </section>
 
       <section>
         <h3>You are currently editing:</h3>
-        {editing}
+        <span>{editing}</span>
         {editIndex > 5 ? <button>Go Back</button> : <></>}
         {user.editing.length > editIndex ? <button>Next page</button> : <></>}
 
         <h2>Start your next visual novel:</h2>
-        <PopupForm userId={props.userId}/>
+        <PopupForm userId={props.userId} />
       </section>
-
-
     </div>
   );
 };
