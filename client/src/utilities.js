@@ -14,8 +14,9 @@ function formatParams(params) {
     .map((key) => {
       const value = params[key];
       if (Array.isArray(value)) {
+        // Always represent the array explicitly in the query string
         return value
-          .map((item) => key + "=" + encodeURIComponent(item))
+          .map((item) => key + "[]=" + encodeURIComponent(item))
           .join("&");
       }
       return key + "=" + encodeURIComponent(value);

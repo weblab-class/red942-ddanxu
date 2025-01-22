@@ -148,8 +148,9 @@ router.get("/audioAsBlob", async (req, res) => {
     return res.status(400).send({ error: "links are required" });
   }
 
+  console.log(links instanceof Array);
+
   const blob = await audioStore.getAudio(links);
-  console.log(blob instanceof Blob);
   res.setHeader('Content-Type', 'audio/mp3');
   res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
   const arrayBuffer = await blob.arrayBuffer();

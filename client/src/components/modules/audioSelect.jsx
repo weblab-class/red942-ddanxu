@@ -41,8 +41,8 @@ const AudioSelect = (props) => {
     const checkAndSetBgm = async () => {
       if (props.frame.bgm && props.frame.bgm.length > 0) {
         try {
-          console.log(props.frame.bgm);
-          const blob = await get("/api/audioAsBlob", { links: props.frame.bgm });
+          const arr = Array.isArray(props.frame.bgm) ? props.frame.bgm : [props.frame.bgm];
+          const blob = await get("/api/audioAsBlob", { links: arr });
           console.log(blob);
           const blobUrl = URL.createObjectURL(blob);
           setPreviewBlobUrl(blobUrl);
@@ -59,12 +59,14 @@ const AudioSelect = (props) => {
     const checkAndSetOnPlay = async () => {
       if (props.frame.onPlayAudio && props.frame.onPlayAudio.length > 0) {
         try {
-          const blob = await get("/api/audioAsBlob", { links: props.frame.onPlayAudio });
+          const arr = Array.isArray(props.frame.onPlayAudio) ? props.frame.onPlayAudio : [props.frame.onPlayAudio];
+          console.log(arr);
+          const blob = await get("/api/audioAsBlob", { links: arr });
           console.log(blob);
           const blobUrl = URL.createObjectURL(blob);
           setPreviewBlobUrl(blobUrl);
         } catch (error) {
-          console.error("Error fetching audio Blob for bgm:", error);
+          console.error("Error fetching audio Blob for onPlay:", error);
         }
       }
     };
