@@ -210,6 +210,7 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
 
   await Frame.findByIdAndUpdate(frameId, { novelId: novelId });
 
+  
   const user = await User.findById(userId);
   const editing = user.editing;
   user.editing = [...editing, { novelId: novelId, frameId: frameId }];
