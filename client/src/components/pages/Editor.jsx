@@ -45,7 +45,7 @@ const Editor = () => {
         state: {
           novelId: novel._id,
           frameId: frame.nextFrame,
-          userId: location.state.userId
+          userId: location.state.userId,
         },
         replace: true,
       });
@@ -57,7 +57,7 @@ const Editor = () => {
         state: {
           novelId: novel._id,
           frameId: next.frameId,
-          userId: location.state.userId
+          userId: location.state.userId,
         },
         replace: true,
       });
@@ -73,7 +73,7 @@ const Editor = () => {
       state: {
         novelId: novel._id,
         frameId: frame._id,
-        userId: location.state.userId
+        userId: location.state.userId,
       },
     });
   };
@@ -84,34 +84,50 @@ const Editor = () => {
 
   return (
     <>
-      <h1>Editing {novel.name}</h1>
-      <h3>Currently looking at frame with id {frame._id}</h3>
-      <p>This frame has bg: {frame.background}</p>
-      <img src={novel.thumbnail} />
-      <span>
-        <ImageSelect frame={frame} type="bg" />
-        <ImageSelect frame={frame} type="left" />
-        <ImageSelect frame={frame} type="mid" />
-        <ImageSelect frame={frame} type="right" />
-      </span>
-      <span>
-        <AudioSelect frame={frame} type="bgm" />
-        <AudioSelect frame={frame} type="onPlay" />
-      </span>
-      <div>
-        <TextSelect frame={frame} />
-      </div>
-      <div>
-        <h1>Next Frame?</h1>
-        <button onClick={nextFrame}>next</button>
-      </div>
-      <div>
-        <h1>Toggle Public</h1>
-        <button onClick={togglePublic}>toggle</button>
-      </div>
+  <div className="header">
+    <h1>Editing {novel.name}</h1>
+  </div>
 
-      <button onClick={play}>Play this frame</button>
-    </>
+  <div className="image-selects">
+    <span className="image-select">
+      <ImageSelect frame={frame} type="bg" />
+    </span>
+    <span className="image-select">
+      <ImageSelect frame={frame} type="left" />
+    </span>
+    <span className="image-select">
+      <ImageSelect frame={frame} type="mid" />
+    </span>
+    <span className="image-select">
+      <ImageSelect frame={frame} type="right" />
+    </span>
+  </div>
+
+  <div className="audio-selects">
+    <span className="audio-select">
+      <AudioSelect frame={frame} type="bgm" />
+    </span>
+    <span className="audio-select">
+      <AudioSelect frame={frame} type="onPlay" />
+    </span>
+  </div>
+
+  <div className="select-group">
+    <div className="text-select">
+      <TextSelect frame={frame} />
+    </div>
+    <div className="public-toggle">
+      <h1>Toggle Public</h1>
+      <button onClick={togglePublic}>toggle</button>
+    </div>
+    <div className="next-frame">
+      <h1>Next Frame?</h1>
+      <button onClick={nextFrame}>next</button>
+    </div>
+  </div>
+
+  <button className="play-frame" onClick={play}>Play this frame</button>
+</>
   );
 };
 

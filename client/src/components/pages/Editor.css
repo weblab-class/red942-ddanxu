@@ -1,6 +1,79 @@
 img {
-    max-width: 500px;   /* Max width of the image */
-    max-height: 300px;  /* Max height of the image */
-    width: auto;        /* Automatically adjust width to maintain aspect ratio */
-    height: auto;       /* Automatically adjust height to maintain aspect ratio */
-  }
+  max-width: 500px; /* Max width of the image */
+  max-height: 300px; /* Max height of the image */
+  width: auto; /* Automatically adjust width to maintain aspect ratio */
+  height: auto; /* Automatically adjust height to maintain aspect ratio */
+}
+
+.header {
+  margin-bottom: 20px;
+  padding: 0 15px; /* Padding added to prevent edges */
+}
+
+.thumbnail-container {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.thumbnail {
+  max-width: 100%;
+  height: auto;
+}
+
+.image-selects,
+.audio-selects {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.image-select,
+.audio-select {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.select-group {
+  display: flex;
+  justify-content: center; /* Center the items */
+  margin-bottom: 20px;
+  padding: 0 15px; /* Padding added to prevent edges */
+  gap: 25%; /* Increased gap to make elements wider */
+  align-items: center;
+  width: 100%; /* Ensures the group takes the full width */
+  max-width: 100vw; /* Prevents overflow and horizontal scroll */
+  box-sizing: border-box; /* Prevents padding from increasing total width */
+}
+
+.text-select {
+  flex: 0;
+  padding-right: 20px; /* Increased padding to make it wider */
+  min-width: 200px; /* Set a minimum width to make it wider */
+}
+
+.public-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 20px; /* Increased padding */
+  min-width: 200px; /* Set a minimum width to make it wider */
+}
+
+.next-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.frame-actions {
+  margin-bottom: 20px;
+}
+
+.play-frame {
+  position: absolute;
+  top: 8%;
+  right: 20px;
+  margin-top: 20px;
+}
