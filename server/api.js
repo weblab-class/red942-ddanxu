@@ -165,7 +165,14 @@ router.get("/audioAsBlob", async (req, res) => {
   res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
   const arrayBuffer = await blob.arrayBuffer();
   return res.status(200).send(Buffer.from(arrayBuffer));
-})
+});
+
+router.get("/publicNovels", async (req, res) => {
+  console.log("public novels was called")
+  const publicNovels = (await Novel.find({ isPublic: true })).map((novel) => novel._id);
+  console.log(publicNovels);
+  return res.status(200).send({novels: publicNovels});
+});
 //------------------POST-----------------------
 
 const storage = multer.memoryStorage();
