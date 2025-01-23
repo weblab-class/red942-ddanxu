@@ -84,50 +84,52 @@ const Editor = () => {
 
   return (
     <>
-  <div className="header">
-    <h1>Editing {novel.name}</h1>
-  </div>
+      <div className="header">
+        <h1>Editing {novel.name}</h1>
+      </div>
 
-  <div className="image-selects">
-    <span className="image-select">
-      <ImageSelect frame={frame} type="bg" />
-    </span>
-    <span className="image-select">
-      <ImageSelect frame={frame} type="left" />
-    </span>
-    <span className="image-select">
-      <ImageSelect frame={frame} type="mid" />
-    </span>
-    <span className="image-select">
-      <ImageSelect frame={frame} type="right" />
-    </span>
-  </div>
+      <div className="image-selects">
+        <span className="image-select">
+          <ImageSelect frame={frame} type="bg" />
+        </span>
+        <span className="image-select">
+          <ImageSelect frame={frame} type="left" />
+        </span>
+        <span className="image-select">
+          <ImageSelect frame={frame} type="mid" />
+        </span>
+        <span className="image-select">
+          <ImageSelect frame={frame} type="right" />
+        </span>
+      </div>
 
-  <div className="audio-selects">
-    <span className="audio-select">
-      <AudioSelect frame={frame} type="bgm" />
-    </span>
-    <span className="audio-select">
-      <AudioSelect frame={frame} type="onPlay" />
-    </span>
-  </div>
+      <div className="audio-selects">
+        <span className="audio-select">
+          <AudioSelect frame={frame} type="bgm" />
+        </span>
+        <span className="audio-select">
+          <AudioSelect frame={frame} type="onPlay" />
+        </span>
+      </div>
 
-  <div className="select-group">
-    <div className="text-select">
-      <TextSelect frame={frame} />
-    </div>
-    <div className="public-toggle">
-      <h1>Toggle Public</h1>
-      <button onClick={togglePublic}>toggle</button>
-    </div>
-    <div className="next-frame">
-      <h1>Next Frame?</h1>
-      <button onClick={nextFrame}>next</button>
-    </div>
-  </div>
+      <div className="select-group">
+        <div className="text-select">
+          <TextSelect frame={frame} />
+        </div>
+        <div className="public-toggle">
+          <h1>Toggle Public</h1>
+          <button onClick={togglePublic}>toggle</button>
+        </div>
+        <div className="next-frame">
+          <h1>Next Frame?</h1>
+          <button onClick={nextFrame}>next</button>
+        </div>
+      </div>
 
-  <button className="play-frame" onClick={play}>Play this frame</button>
-</>
+      <button className="play-frame" onClick={play}>
+        Play this frame
+      </button>
+    </>
   );
 };
 

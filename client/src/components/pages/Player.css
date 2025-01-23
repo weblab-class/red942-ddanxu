@@ -47,7 +47,7 @@ body {
   /* Text box styling */
   .visual-novel h3 {
     position: absolute;
-    bottom: 10%;
+    bottom: 0%;
     left: 5%;
     right: 5%;
     padding: 10px;
@@ -55,14 +55,15 @@ body {
     border: 2px solid white;
     border-radius: 10px;
     z-index: 3;
-    text-align: center;
+    text-align: left;
+    font-size: 48px;
   }
   
   /* Next button styling */
   .visual-novel button {
     position: absolute;
     bottom: 5%;
-    right: 5%;
+    right: 6%;
     padding: 10px 20px;
     font-size: 16px;
     color: white;

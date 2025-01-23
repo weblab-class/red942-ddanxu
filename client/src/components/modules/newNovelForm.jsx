@@ -22,7 +22,7 @@ const PopupForm = (props) => {
 
     const response = await post("/api/newNovel", formData, {});
 
-    navigate('/editor', {
+    navigate('/editor/' + props.userId, {
         state: {
             novelId: response.novelId
         }
