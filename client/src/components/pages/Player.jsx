@@ -38,6 +38,8 @@ const Player = () => {
 
       setUser(userObj);
     });
+
+window.scrollTo(0, 200);
   }, [location.state]);
 
   const nextFrame = async () => {
