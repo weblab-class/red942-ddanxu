@@ -10,9 +10,7 @@
 const imgur = require("./imgur.js");
 const multer = require("multer");
 const express = require("express");
-const audioStore = require("./audioStore.js");
 const path = require("path");
-
 
 // import models so we can interact with the database
 const User = require("./models/user.js");
@@ -29,6 +27,8 @@ const router = express.Router();
 const socketManager = require("./server-socket.js");
 const user = require("./models/user.js");
 
+const { google } = require("googleapis");
+const { PassThrough } = require("stream");
 //---------Auth-------------
 
 router.post("/login", auth.login);
@@ -143,7 +143,7 @@ router.get("/onPlaysFromFrame", async (req, res) => {
   return res.status(200).send({ onPlayAudios: onPlays });
 });
 
-router.get('/text', async (req, res) => {
+router.get("/text", async (req, res) => {
   const frameId = req.query.frameId;
   if (!frameId) {
     return res.status(400).send({ error: "frameId is required" });
@@ -151,7 +151,7 @@ router.get('/text', async (req, res) => {
 
   const frame = await Frame.findById(frameId);
   const text = frame.text;
-  return res.status(200).send({text: text});
+  return res.status(200).send({ text: text });
 });
 
 router.get("/audioAsBlob", async (req, res) => {
@@ -160,30 +160,73 @@ router.get("/audioAsBlob", async (req, res) => {
     return res.status(400).send({ error: "links are required" });
   }
 
-  const blob = await audioStore.getAudio(links);
-  res.setHeader('Content-Type', 'audio/mp3');
+  const audioId = links[0];
+  const response = await fetch("https://drive.google.com/uc?export=download&id=" + audioId);
+
+
+  res.setHeader("Content-Type", "audio/mp3");
   res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
-  const arrayBuffer = await blob.arrayBuffer();
+  const arrayBuffer = await response.arrayBuffer();
   return res.status(200).send(Buffer.from(arrayBuffer));
 });
 
 router.get("/publicNovels", async (req, res) => {
-  console.log("public novels was called")
+  console.log("public novels was called");
   const publicNovels = (await Novel.find({ isPublic: true })).map((novel) => novel._id);
   console.log(publicNovels);
-  return res.status(200).send({novels: publicNovels});
+  return res.status(200).send({ novels: publicNovels });
 });
+
 //------------------POST-----------------------
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Load service account credentials
+// Load service account credentials from an environment variable
+const GOOGLE_DRIVE_JSON = process.env.GOOGLE_DRIVE_JSON;
+const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
+
+if (!GOOGLE_DRIVE_JSON) {
+  throw new Error("Missing GOOGLE_DRIVE_JSON environment variable");
+}
+
+async function uploadFileToDrive(file) {
+  // Parse JSON string
+  const credentials = JSON.parse(GOOGLE_DRIVE_JSON);
+
+  // Authenticate using fromJSON method
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: SCOPES,
+  });
+
+  const drive = google.drive({ version: "v3", auth });
+
+  // Convert Buffer to PassThrough stream
+  const bufferStream = new PassThrough();
+  bufferStream.end(file.buffer);
+
+  const response = await drive.files.create({
+    requestBody: {
+      name: file.originalname,
+      parents: ["1wcUVJssTEVBpyrz1OYEJ96e-74CTMkSF"], // Replace with your shared folder ID
+    },
+    media: {
+      mimeType: file.mimetype,
+      body: bufferStream, // Use PassThrough stream
+    },
+  });
+
+  return response.data;
+}
+
 router.post("/togglePublic", async (req, res) => {
-  const {novelId} = req.body;
+  const { novelId } = req.body;
   const novel = await Novel.findById(novelId);
   novel.isPublic = !novel.isPublic;
   await novel.save();
-  return res.status(200).send({msg: "swapped!"});
+  return res.status(200).send({ msg: "swapped!" });
 });
 
 router.post("/imgUp", upload.single("image"), async (req, res) => {
@@ -226,37 +269,35 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
 });
 
 router.post("/audioUp", upload.single("audio"), async (req, res) => {
-  console.log("made it here");
-  if (!req.file) {
-    console.log("audio up failed");
-    return res.status(400).send({ msg: "No File Upload" });
-  }
 
-  const { name, frameId, type }= req.body;
+  const { name, frameId, type } = req.body;
 
   const extension = path.extname(req.file.originalname).slice(1);
-  const supportedExtensions = ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'amr'];
+  const supportedExtensions = ["mp3", "wav", "aac", "ogg", "flac", "m4a", "amr"];
   if (!supportedExtensions.includes(extension.toLowerCase())) {
     throw new Error(`Unsupported audio format: ${extension}`);
   }
 
-  const result = await audioStore.uploadAudio(req.file.buffer, extension);
+  const fileData = await uploadFileToDrive(req.file);
+  console.log(fileData)
+
+  const result = [fileData.id]
   const frame = await Frame.findById(frameId);
   const novelId = frame.novelId;
   const novel = await Novel.findById(novelId);
 
-  if (type == 'bgm') {
-    novel.bgms = [...(novel.bgms || []), {name: name, links: result}]
+  if (type == "bgm") {
+    novel.bgms = [...(novel.bgms || []), { name: name, links: result }];
     frame.bgm = result;
   } else {
-    novel.onPlayAudios = [...(novel.onPlayAudios || []), {name: name, links: result}]
+    novel.onPlayAudios = [...(novel.onPlayAudios || []), { name: name, links: result }];
     frame.onPlayAudio = result;
   }
 
   await novel.save();
   await frame.save();
 
-  res.status(200).send({links: result});
+  return res.status(200).send({ fileId: fileData.id });
 });
 
 router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
@@ -300,27 +341,27 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
   return res.status(200).send({ novelId: novelId });
 });
 
-router.post('/nextFrame', async (req, res) => {
+router.post("/nextFrame", async (req, res) => {
   console.log("made it here");
-  const {oldFrameId} = req.body;
+  const { oldFrameId } = req.body;
 
   console.log(oldFrameId);
   oldFrame = await Frame.findById(oldFrameId);
   console.log("Got old frame?");
 
   const newFrame = new Frame({
-    prevFrames : [oldFrame._id],
-    novelId : oldFrame.novelId,
+    prevFrames: [oldFrame._id],
+    novelId: oldFrame.novelId,
     spriteLeft: oldFrame.spriteLeft,
     spriteMid: oldFrame.spriteMid,
     spriteRight: oldFrame.spriteRight,
     background: oldFrame.background,
-    bgm: oldFrame.bgm
+    bgm: oldFrame.bgm,
   });
   const frame = await newFrame.save();
   oldFrame.nextFrame = frame._id;
   await oldFrame.save();
-  return res.status(200).send({frameId: frame._id});
+  return res.status(200).send({ frameId: frame._id });
 });
 
 router.post("/setbg", async (req, res) => {
@@ -329,7 +370,7 @@ router.post("/setbg", async (req, res) => {
   frame.background = link;
   await frame.save();
   console.log("bg set for " + frameId);
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setleft", async (req, res) => {
@@ -337,7 +378,7 @@ router.post("/setleft", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteLeft = link;
   await frame.save();
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setmid", async (req, res) => {
@@ -345,7 +386,7 @@ router.post("/setmid", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteMid = link;
   await frame.save();
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setright", async (req, res) => {
@@ -382,9 +423,9 @@ router.post("/setText", async (req, res) => {
 
 //@TODO make this make a save
 router.post("/userPlayNew", async (req, res) => {
-  const {userId, novelId, frameId} = req.body;
+  const { userId, novelId, frameId } = req.body;
   const user = await User.findById(userId);
-  user.playing = [...(user.playing || []), {novelId: novelId, saveId: null}];
+  user.playing = [...(user.playing || []), { novelId: novelId, saveId: null }];
   user.save();
   return res.status(200);
 });

@@ -2,3 +2,4 @@ client/dist/bundle.js
 node_modules/
 .DS_Store
 .env
+server/vnforgestorage-081e840b0b9b.json
