@@ -58,7 +58,6 @@ export async function get(endpoint, params = {}) {
     if (contentType && contentType.startsWith("audio/")) {
       // If it's audio, return the response as a Blob
       const blob = await response.blob();
-      console.log("blob is " + blob);
       return blob;
     } else {
       // Otherwise, parse the response as JSON

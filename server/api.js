@@ -13,7 +13,6 @@ const express = require("express");
 const audioStore = require("./audioStore.js");
 const path = require("path");
 
-
 // import models so we can interact with the database
 const User = require("./models/user.js");
 const { Novel } = require("./models/novels.js");
@@ -29,6 +28,8 @@ const router = express.Router();
 const socketManager = require("./server-socket.js");
 const user = require("./models/user.js");
 
+const { google } = require("googleapis");
+const { PassThrough } = require("stream");
 //---------Auth-------------
 
 router.post("/login", auth.login);
@@ -143,7 +144,7 @@ router.get("/onPlaysFromFrame", async (req, res) => {
   return res.status(200).send({ onPlayAudios: onPlays });
 });
 
-router.get('/text', async (req, res) => {
+router.get("/text", async (req, res) => {
   const frameId = req.query.frameId;
   if (!frameId) {
     return res.status(400).send({ error: "frameId is required" });
@@ -151,7 +152,7 @@ router.get('/text', async (req, res) => {
 
   const frame = await Frame.findById(frameId);
   const text = frame.text;
-  return res.status(200).send({text: text});
+  return res.status(200).send({ text: text });
 });
 
 router.get("/audioAsBlob", async (req, res) => {
@@ -161,29 +162,86 @@ router.get("/audioAsBlob", async (req, res) => {
   }
 
   const blob = await audioStore.getAudio(links);
-  res.setHeader('Content-Type', 'audio/mp3');
+  res.setHeader("Content-Type", "audio/mp3");
   res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
   const arrayBuffer = await blob.arrayBuffer();
   return res.status(200).send(Buffer.from(arrayBuffer));
 });
 
 router.get("/publicNovels", async (req, res) => {
-  console.log("public novels was called")
+  console.log("public novels was called");
   const publicNovels = (await Novel.find({ isPublic: true })).map((novel) => novel._id);
   console.log(publicNovels);
-  return res.status(200).send({novels: publicNovels});
+  return res.status(200).send({ novels: publicNovels });
+});
+
+router.get("/audTest", async (req, res) => {
+  console.log("made it");
+
+  try {
+    const audioUrl =
+      "https://drive.google.com/uc?export=download&id=11vnFq4Nsi4i7tLT8OCrL5Y6xL5I4jw8q"; // Extracted download URL
+    const response = await fetch(audioUrl);
+
+    if (!response.ok) {
+      return res.status(response.status).send("Error fetching audio");
+    }
+
+    const audioBuffer = await response.arrayBuffer();
+    res.set("Content-Type", "audio/mpeg"); // Or appropriate audio format
+    return res.status(200).send(Buffer.from(audioBuffer));
+  } catch (error) {
+    console.error("Error fetching audio:", error);
+    res.status(500).send("Error fetching audio");
+  }
 });
 //------------------POST-----------------------
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+// Load service account credentials
+const KEYFILE_PATH = "./server/vnforgestorage-081e840b0b9b.json"; // Your downloaded JSON file
+const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
+
+async function uploadFileToDrive(file) {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: KEYFILE_PATH,
+    scopes: SCOPES,
+  });
+
+  const drive = google.drive({ version: "v3", auth });
+
+  // Convert Buffer to PassThrough stream
+  const bufferStream = new PassThrough();
+  bufferStream.end(file.buffer);
+
+  const response = await drive.files.create({
+    requestBody: {
+      name: file.originalname,
+      parents: ["1wcUVJssTEVBpyrz1OYEJ96e-74CTMkSF"], // Replace with your shared folder ID
+    },
+    media: {
+      mimeType: file.mimetype,
+      body: bufferStream, // Use PassThrough stream
+    },
+  });
+
+  return response.data;
+}
+
+router.post("/testGoogUp", upload.single("file"), async (req, res) => {
+  const fileData = await uploadFileToDrive(req.file);
+  console.log(fileData)
+  return res.status(200).send({ fileId: fileData.id });
+});
+
 router.post("/togglePublic", async (req, res) => {
-  const {novelId} = req.body;
+  const { novelId } = req.body;
   const novel = await Novel.findById(novelId);
   novel.isPublic = !novel.isPublic;
   await novel.save();
-  return res.status(200).send({msg: "swapped!"});
+  return res.status(200).send({ msg: "swapped!" });
 });
 
 router.post("/imgUp", upload.single("image"), async (req, res) => {
@@ -232,10 +290,10 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
     return res.status(400).send({ msg: "No File Upload" });
   }
 
-  const { name, frameId, type }= req.body;
+  const { name, frameId, type } = req.body;
 
   const extension = path.extname(req.file.originalname).slice(1);
-  const supportedExtensions = ['mp3', 'wav', 'aac', 'ogg', 'flac', 'm4a', 'amr'];
+  const supportedExtensions = ["mp3", "wav", "aac", "ogg", "flac", "m4a", "amr"];
   if (!supportedExtensions.includes(extension.toLowerCase())) {
     throw new Error(`Unsupported audio format: ${extension}`);
   }
@@ -245,18 +303,18 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
   const novelId = frame.novelId;
   const novel = await Novel.findById(novelId);
 
-  if (type == 'bgm') {
-    novel.bgms = [...(novel.bgms || []), {name: name, links: result}]
+  if (type == "bgm") {
+    novel.bgms = [...(novel.bgms || []), { name: name, links: result }];
     frame.bgm = result;
   } else {
-    novel.onPlayAudios = [...(novel.onPlayAudios || []), {name: name, links: result}]
+    novel.onPlayAudios = [...(novel.onPlayAudios || []), { name: name, links: result }];
     frame.onPlayAudio = result;
   }
 
   await novel.save();
   await frame.save();
 
-  res.status(200).send({links: result});
+  res.status(200).send({ links: result });
 });
 
 router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
@@ -300,27 +358,27 @@ router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {
   return res.status(200).send({ novelId: novelId });
 });
 
-router.post('/nextFrame', async (req, res) => {
+router.post("/nextFrame", async (req, res) => {
   console.log("made it here");
-  const {oldFrameId} = req.body;
+  const { oldFrameId } = req.body;
 
   console.log(oldFrameId);
   oldFrame = await Frame.findById(oldFrameId);
   console.log("Got old frame?");
 
   const newFrame = new Frame({
-    prevFrames : [oldFrame._id],
-    novelId : oldFrame.novelId,
+    prevFrames: [oldFrame._id],
+    novelId: oldFrame.novelId,
     spriteLeft: oldFrame.spriteLeft,
     spriteMid: oldFrame.spriteMid,
     spriteRight: oldFrame.spriteRight,
     background: oldFrame.background,
-    bgm: oldFrame.bgm
+    bgm: oldFrame.bgm,
   });
   const frame = await newFrame.save();
   oldFrame.nextFrame = frame._id;
   await oldFrame.save();
-  return res.status(200).send({frameId: frame._id});
+  return res.status(200).send({ frameId: frame._id });
 });
 
 router.post("/setbg", async (req, res) => {
@@ -329,7 +387,7 @@ router.post("/setbg", async (req, res) => {
   frame.background = link;
   await frame.save();
   console.log("bg set for " + frameId);
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setleft", async (req, res) => {
@@ -337,7 +395,7 @@ router.post("/setleft", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteLeft = link;
   await frame.save();
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setmid", async (req, res) => {
@@ -345,7 +403,7 @@ router.post("/setmid", async (req, res) => {
   const frame = await Frame.findById(frameId);
   frame.spriteMid = link;
   await frame.save();
-  return res.status(200).send({link: link});
+  return res.status(200).send({ link: link });
 });
 
 router.post("/setright", async (req, res) => {
@@ -382,9 +440,9 @@ router.post("/setText", async (req, res) => {
 
 //@TODO make this make a save
 router.post("/userPlayNew", async (req, res) => {
-  const {userId, novelId, frameId} = req.body;
+  const { userId, novelId, frameId } = req.body;
   const user = await User.findById(userId);
-  user.playing = [...(user.playing || []), {novelId: novelId, saveId: null}];
+  user.playing = [...(user.playing || []), { novelId: novelId, saveId: null }];
   user.save();
   return res.status(200);
 });

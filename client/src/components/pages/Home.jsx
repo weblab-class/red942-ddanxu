@@ -5,11 +5,25 @@ import { get } from "../../utilities.js";
 import "../../utilities.css";
 import "./Skeleton.css";
 import NovelPreview from "../modules/novelPreview.jsx";
-
+import FileUploader from "./testPage.jsx";
 
 const Home = () => {
   const { userId } = useOutletContext();
   const [novels, setNovels] = useState([]);
+  const [audioUrl, setAudioUrl] = useState(null);
+
+  // Fetch audio URL when the component mounts
+  useEffect(() => {
+    const fetchAudio = async () => {
+        const response = await get('/api/audTest');
+          console.log(response)
+          const blob = await response;
+          const url = URL.createObjectURL(blob);
+          setAudioUrl(url);
+    };
+
+    fetchAudio();
+  }, []);
 
   // Fetch novels when the component mounts if the user is logged in
   useEffect(() => {
@@ -34,6 +48,8 @@ const Home = () => {
 
   return (
     <>
+      <FileUploader/>
+      {audioUrl && <audio src={audioUrl} controls autoPlay/>}
       <h1>Welcome to VNForge!</h1>
       <p>
         Sign in above and navigate to your profile to begin making visual
@@ -44,7 +60,7 @@ const Home = () => {
       {userId ? (
         <div>
           {novels.length > 0 ? (
-             novels
+            novels
           ) : (
             <p>No novels available at the moment.</p>
           )}
