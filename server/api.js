@@ -191,7 +191,7 @@ if (!GOOGLE_DRIVE_JSON) {
   throw new Error("Missing GOOGLE_DRIVE_JSON environment variable");
 }
 
-async function uploadFileToDrive(file) {
+const uploadFileToDrive = async (file) => {
   // Parse JSON string
   const credentials = JSON.parse(GOOGLE_DRIVE_JSON);
 
