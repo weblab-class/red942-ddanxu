@@ -10,7 +10,6 @@
 const imgur = require("./imgur.js");
 const multer = require("multer");
 const express = require("express");
-const audioStore = require("./audioStore.js");
 const path = require("path");
 
 // import models so we can interact with the database
@@ -161,10 +160,13 @@ router.get("/audioAsBlob", async (req, res) => {
     return res.status(400).send({ error: "links are required" });
   }
 
-  const blob = await audioStore.getAudio(links);
+  const audioId = links[0];
+  const response = await fetch("https://drive.google.com/uc?export=download&id=" + audioId);
+
+
   res.setHeader("Content-Type", "audio/mp3");
   res.setHeader("Content-Disposition", "inline; filename=audio.mp3");
-  const arrayBuffer = await blob.arrayBuffer();
+  const arrayBuffer = await response.arrayBuffer();
   return res.status(200).send(Buffer.from(arrayBuffer));
 });
 
@@ -175,38 +177,27 @@ router.get("/publicNovels", async (req, res) => {
   return res.status(200).send({ novels: publicNovels });
 });
 
-router.get("/audTest", async (req, res) => {
-  console.log("made it");
-
-  try {
-    const audioUrl =
-      "https://drive.google.com/uc?export=download&id=11vnFq4Nsi4i7tLT8OCrL5Y6xL5I4jw8q"; // Extracted download URL
-    const response = await fetch(audioUrl);
-
-    if (!response.ok) {
-      return res.status(response.status).send("Error fetching audio");
-    }
-
-    const audioBuffer = await response.arrayBuffer();
-    res.set("Content-Type", "audio/mpeg"); // Or appropriate audio format
-    return res.status(200).send(Buffer.from(audioBuffer));
-  } catch (error) {
-    console.error("Error fetching audio:", error);
-    res.status(500).send("Error fetching audio");
-  }
-});
 //------------------POST-----------------------
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Load service account credentials
-const KEYFILE_PATH = "./server/vnforgestorage-081e840b0b9b.json"; // Your downloaded JSON file
+// Load service account credentials from an environment variable
+const GOOGLE_DRIVE_JSON = process.env.GOOGLE_DRIVE_JSON;
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 
+if (!GOOGLE_DRIVE_JSON) {
+  throw new Error("Missing GOOGLE_DRIVE_JSON environment variable");
+}
+
 async function uploadFileToDrive(file) {
+  // Parse JSON string
+  const credentials = JSON.parse(GOOGLE_DRIVE_JSON);
+
+  // Authenticate using fromJSON method
   const auth = new google.auth.GoogleAuth({
-    keyFile: KEYFILE_PATH,
+    credentials,
     scopes: SCOPES,
   });
 
@@ -229,12 +220,6 @@ async function uploadFileToDrive(file) {
 
   return response.data;
 }
-
-router.post("/testGoogUp", upload.single("file"), async (req, res) => {
-  const fileData = await uploadFileToDrive(req.file);
-  console.log(fileData)
-  return res.status(200).send({ fileId: fileData.id });
-});
 
 router.post("/togglePublic", async (req, res) => {
   const { novelId } = req.body;
@@ -284,11 +269,6 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
 });
 
 router.post("/audioUp", upload.single("audio"), async (req, res) => {
-  console.log("made it here");
-  if (!req.file) {
-    console.log("audio up failed");
-    return res.status(400).send({ msg: "No File Upload" });
-  }
 
   const { name, frameId, type } = req.body;
 
@@ -298,7 +278,10 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
     throw new Error(`Unsupported audio format: ${extension}`);
   }
 
-  const result = await audioStore.uploadAudio(req.file.buffer, extension);
+  const fileData = await uploadFileToDrive(req.file);
+  console.log(fileData)
+
+  const result = [fileData.id]
   const frame = await Frame.findById(frameId);
   const novelId = frame.novelId;
   const novel = await Novel.findById(novelId);
@@ -314,7 +297,7 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
   await novel.save();
   await frame.save();
 
-  res.status(200).send({ links: result });
+  return res.status(200).send({ fileId: fileData.id });
 });
 
 router.post("/newNovel", upload.single("thumbnail"), async (req, res) => {

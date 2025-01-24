@@ -5,7 +5,6 @@ import { get } from "../../utilities.js";
 import "../../utilities.css";
 import "./Skeleton.css";
 import NovelPreview from "../modules/novelPreview.jsx";
-import FileUploader from "./testPage.jsx";
 
 const Home = () => {
   const { userId } = useOutletContext();
@@ -48,13 +47,13 @@ const Home = () => {
 
   return (
     <>
-      <FileUploader/>
-      {audioUrl && <audio src={audioUrl} controls autoPlay/>}
       <h1>Welcome to VNForge!</h1>
       <p>
         Sign in above and navigate to your profile to begin making visual
         novels! Or check out some published ones:
       </p>
+
+      <p>Make sure to allow audio autoplay on this site so you can hear the novels!</p>
 
       {/* Show novels only if the user is logged in */}
       {userId ? (
