@@ -35,10 +35,6 @@ const Home = () => {
   return (
     <>
       <h1>Welcome to VNForge!</h1>
-      <audio controls>
-  <source src="https://drive.google.com/file/d/1iQIKCuKXgQ9Nj-gR-KqJ1sxPc-oiBUA5/preview" type="audio/mp3"/>
-  Your browser does not support the audio element.
-</audio>
       <p>
         Sign in above and navigate to your profile to begin making visual
         novels! Or check out some published ones:
