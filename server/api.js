@@ -27,8 +27,8 @@ const router = express.Router();
 const socketManager = require("./server-socket.js");
 const user = require("./models/user.js");
 
-const { google } = require("googleapis");
-const { PassThrough } = require("stream");
+const audioUpload = require("./audioUplaod.js");
+
 //---------Auth-------------
 
 router.post("/login", auth.login);
@@ -187,42 +187,7 @@ const upload = multer({ storage });
 
 // Load service account credentials
 // Load service account credentials from an environment variable
-const GOOGLE_DRIVE_JSON = process.env.GOOGLE_DRIVE_JSON;
-const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 
-if (!GOOGLE_DRIVE_JSON) {
-  throw new Error("Missing GOOGLE_DRIVE_JSON environment variable");
-}
-
-const uploadFileToDrive = async (file) => {
-  // Parse JSON string
-  const credentials = JSON.parse(GOOGLE_DRIVE_JSON);
-
-  // Authenticate using fromJSON method
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: SCOPES,
-  });
-
-  const drive = google.drive({ version: "v3", auth });
-
-  // Convert Buffer to PassThrough stream
-  const bufferStream = new PassThrough();
-  bufferStream.end(file.buffer);
-
-  const response = await drive.files.create({
-    requestBody: {
-      name: file.originalname,
-      parents: ["1wcUVJssTEVBpyrz1OYEJ96e-74CTMkSF"], // Replace with your shared folder ID
-    },
-    media: {
-      mimeType: file.mimetype,
-      body: bufferStream, // Use PassThrough stream
-    },
-  });
-
-  return response.data;
-}
 
 router.post("/togglePublic", async (req, res) => {
   const { novelId } = req.body;
@@ -282,8 +247,7 @@ router.post("/audioUp", upload.single("audio"), async (req, res) => {
     throw new Error(`Unsupported audio format: ${extension}`);
   }
 
-  const fileData = await uploadFileToDrive(req.file);
-  console.log(fileData)
+  const fileData = await audioUpload.uploadFileToDrive(req.file);
 
   const result = [fileData.id]
   const frame = await Frame.findById(frameId);

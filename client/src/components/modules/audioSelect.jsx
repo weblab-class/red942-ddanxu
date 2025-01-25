@@ -105,11 +105,25 @@ const AudioSelect = (props) => {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
+  
     if (selectedFile) {
-      setFile(selectedFile);
-      setSelectedOption(null); // Clear dropdown selection
-      setPreviewUrl(URL.createObjectURL(selectedFile)); // Create a local preview URL
-      setPreviewBlobUrl(null); // Clear Blob URL
+      const audio = new Audio();
+      audio.src = URL.createObjectURL(selectedFile);
+  
+      audio.onloadedmetadata = () => {
+        if (audio.duration > 600) { // 600 seconds = 10 minutes
+          alert("Audio files longer than 10 minutes are not accepted!");
+          event.target.value = ""; // Reset file input
+          setFile(null);
+          setPreviewUrl(null);
+          return;
+        }
+  
+        setFile(selectedFile);
+        setSelectedOption(null); // Clear dropdown selection
+        setPreviewUrl(audio.src); // Create a local preview URL
+        setPreviewBlobUrl(null); // Clear Blob URL
+      };
     }
   };
 
