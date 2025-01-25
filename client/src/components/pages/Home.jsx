@@ -9,20 +9,6 @@ import NovelPreview from "../modules/novelPreview.jsx";
 const Home = () => {
   const { userId } = useOutletContext();
   const [novels, setNovels] = useState([]);
-  const [audioUrl, setAudioUrl] = useState(null);
-
-  // Fetch audio URL when the component mounts
-  useEffect(() => {
-    const fetchAudio = async () => {
-        const response = await get('/api/audTest');
-          console.log(response)
-          const blob = await response;
-          const url = URL.createObjectURL(blob);
-          setAudioUrl(url);
-    };
-
-    fetchAudio();
-  }, []);
 
   // Fetch novels when the component mounts if the user is logged in
   useEffect(() => {

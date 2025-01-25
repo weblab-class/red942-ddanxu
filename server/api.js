@@ -160,7 +160,10 @@ router.get("/audioAsBlob", async (req, res) => {
     return res.status(400).send({ error: "links are required" });
   }
 
+  
+
   const audioId = links[0];
+  console.log("https://drive.google.com/uc?export=download&id=" + audioId);
   const response = await fetch("https://drive.google.com/uc?export=download&id=" + audioId);
 
 
@@ -268,6 +271,7 @@ router.post("/imgUp", upload.single("image"), async (req, res) => {
   }
 });
 
+//@TODO convert audio to mp3 and put a fairly low bit rate for storage reasons
 router.post("/audioUp", upload.single("audio"), async (req, res) => {
 
   const { name, frameId, type } = req.body;

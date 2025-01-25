@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { get, post } from "../../utilities";
 import "./Player.css";
+import AudioPlayer from "../modules/audioPlayer";
 
 const Player = () => {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ const Player = () => {
   const [frame, setFrame] = useState();
   const [novel, setNovel] = useState();
   const [user, setUser] = useState();
+  const [onPlay, setOnPlay] = useState();
+  const [bgm, setBgm] = useState();
 
   useEffect(() => {
     let frameId = null;
@@ -39,8 +42,30 @@ const Player = () => {
       setUser(userObj);
     });
 
-window.scrollTo(0, 200);
+    //add a delay so that the page's height is the actual height before it scrolls
+    //if its too small, I think the nav bar hasn't fully loaded yet
+    setTimeout(() => {
+      window.scrollTo(0, 200);
+      console.log("scroledd");
+    }, 100);
   }, [location.state]);
+
+  useEffect(() => {
+    if (!frame) {
+      return;
+    }
+
+    const newOnPlay = (
+      <AudioPlayer key={frame._id + "-play"} links={frame.onPlayAudio} loops={false} />
+    );
+    setOnPlay(newOnPlay);
+
+    if (bgm?.props.links[0] !== frame.bgm[0]) {
+      console.log("bgm is different")
+      const newBgm = <AudioPlayer key={frame._id + "-bgm"} links={frame.bgm} loops={true} />;
+      setBgm(newBgm);
+    }
+  }, [frame]);
 
   const nextFrame = async () => {
     if (frame.nextFrame != undefined) {
@@ -60,6 +85,8 @@ window.scrollTo(0, 200);
 
   return (
     <div className="visual-novel" style={{ backgroundImage: `url(${frame.background})` }}>
+      {onPlay}
+      {bgm}
       {frame.spriteLeft && <img src={frame.spriteLeft} className="sprite-left" alt="sprite" />}
       {frame.spriteMid && <img src={frame.spriteMid} className="sprite-mid" alt="sprite" />}
       {frame.spriteRight && <img src={frame.spriteRight} className="sprite-right" alt="sprite" />}
