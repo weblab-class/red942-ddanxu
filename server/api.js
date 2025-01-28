@@ -25,7 +25,6 @@ const router = express.Router();
 
 //initialize socket
 const socketManager = require("./server-socket.js");
-const user = require("./models/user.js");
 
 const audioUpload = require("./audioUplaod.js");
 
@@ -179,6 +178,32 @@ router.get("/publicNovels", async (req, res) => {
   console.log(publicNovels);
   return res.status(200).send({ novels: publicNovels });
 });
+
+router.get("/next5sounds", async (req, res) => {
+  let frameId = req.query.frameId;
+  const bgms = [];
+  const onPlays = [];
+
+  for (let i = 0; i < 5; i++) {
+    const frame = await Frame.findById(frameId);
+
+    if (frame.bgm && !bgms.includes(frame.bgm[0])) {
+      bgms.push(frame.bgm[0]);
+    }
+
+    if (frame.onPlayAudio && !onPlays.includes(frame.onPlayAudio[0])) {
+      onPlays.push(frame.onPlayAudio[0]);
+    }
+  
+    if (frame.nextFrame) {
+      frameId = frame.nextFrame;
+    } else {
+      break;
+    }
+  }
+
+  return res.status(200).send({bgms: bgms, onPlays: onPlays});
+})
 
 //------------------POST-----------------------
 

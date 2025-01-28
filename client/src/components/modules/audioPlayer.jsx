@@ -1,32 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { get } from "../../utilities";
+import React, { useEffect, useState } from "react";
 
 /*
-props
-    links: the array to the audio
+props:
+  blobUrl: Preloaded audio blob URL
+  loops: Boolean indicating if audio should loop
 */
-const AudioPlayer = (props) => {
-  const [blobUrl, setBlobUrl] = useState(null); // To hold the Blob URL
+const AudioPlayer = ({ blobUrl, loops }) => {
+  const [currentBlob, setCurrentBlob] = useState(null);
 
   useEffect(() => {
-    console.log("setting new audio");
-    get("/api/audioAsBlob", { links: props.links }).then((blob) => {
-      const blobUrl = URL.createObjectURL(blob);
-      setBlobUrl(blobUrl);
-      console.log(blob);
-    });
-  }, []);
+    if (currentBlob && currentBlob !== blobUrl) {
+      URL.revokeObjectURL(currentBlob); // Clean up old blob
+    }
+    setCurrentBlob(blobUrl);
+  }, [blobUrl]);
 
   return !blobUrl ? (
     <></>
-  ) : props.loops ? (
+  ) : loops ? (
     <audio autoPlay loop>
-      <source src={blobUrl} type={"audio/mpeg"} />
+      <source src={blobUrl} type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
   ) : (
     <audio autoPlay>
-      <source src={blobUrl} type={"audio/mpeg"} />
+      <source src={blobUrl} type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
   );

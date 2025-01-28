@@ -12,6 +12,7 @@ const Player = () => {
   const [user, setUser] = useState();
   const [onPlay, setOnPlay] = useState();
   const [bgm, setBgm] = useState();
+  const [preloadedBlobs, setPreloadedBlobs] = useState(new Map());
 
   useEffect(() => {
     let frameId = null;
@@ -19,13 +20,8 @@ const Player = () => {
     get("/api/novel", { novelId: location.state.novelId }).then((res) => {
       document.title = res.novel.name;
       setNovel(res.novel);
-      if (typeof location.state.frameId != "undefined") {
-        frameId = location.state.frameId;
-        get("/api/frame", { frameId: location.state.frameId }).then((res2) => setFrame(res2.frame));
-      } else {
-        frameId = location.state.frameId;
-        get("/api/frame", { frameId: res.novel.startFrameId }).then((res2) => setFrame(res2.frame));
-      }
+      frameId = location.state.frameId || res.novel.startFrameId;
+      get("/api/frame", { frameId }).then((res2) => setFrame(res2.frame));
     });
 
     get(`/api/user`, { userid: location.state.userId }).then((userObj) => {
@@ -35,40 +31,47 @@ const Player = () => {
         post("/api/userPlayNew", {
           userId: location.state.userId,
           novelId: location.state.novelId,
-          frameId: frameId,
+          frameId,
         }).then();
       }
 
       setUser(userObj);
     });
 
-    //add a delay so that the page's height is the actual height before it scrolls
-    //if its too small, I think the nav bar hasn't fully loaded yet
     setTimeout(() => {
       window.scrollTo(0, 200);
-      console.log("scroledd");
+      console.log("scrolled");
     }, 100);
   }, [location.state]);
 
   useEffect(() => {
-    if (!frame) {
-      return;
-    }
+    if (!frame) return;
 
-    const newOnPlay = (
-      <AudioPlayer key={frame._id + "-play"} links={frame.onPlayAudio} loops={false} />
-    );
-    setOnPlay(newOnPlay);
+    // Fetch next 5 audio blobs
+    get("/api/next5sounds", { frameId: frame._id }).then(({ bgms, onPlays }) => {
+      const newBlobs = new Map(preloadedBlobs);
+      
+      [...bgms, ...onPlays].forEach((link) => {
+        if (!newBlobs.has(link)) {
+          get("/api/audioAsBlob", { links: [link] }).then((blob) => {
+            const blobUrl = URL.createObjectURL(blob);
+            newBlobs.set(link, blobUrl);
+            setPreloadedBlobs(new Map(newBlobs));
+          });
+        }
+      });
+    });
 
-    if (bgm?.props.links[0] !== frame.bgm[0]) {
-      console.log("bgm is different")
-      const newBgm = <AudioPlayer key={frame._id + "-bgm"} links={frame.bgm} loops={true} />;
-      setBgm(newBgm);
+    setOnPlay(<AudioPlayer key={frame._id + "-play"} blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])} loops={false} />);
+    
+    if (bgm?.props.blobUrl !== preloadedBlobs.get(frame.bgm?.[0])) {
+      console.log("bgm is different");
+      setBgm(<AudioPlayer key={frame._id + "-bgm"} blobUrl={preloadedBlobs.get(frame.bgm?.[0])} loops={true} />);
     }
-  }, [frame]);
+  }, [frame, preloadedBlobs]);
 
   const nextFrame = async () => {
-    if (frame.nextFrame != undefined) {
+    if (frame.nextFrame) {
       navigate("/player/" + frame.nextFrame, {
         state: {
           novelId: novel._id,
