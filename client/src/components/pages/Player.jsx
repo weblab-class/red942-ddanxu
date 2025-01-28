@@ -47,20 +47,25 @@ const Player = () => {
   useEffect(() => {
     if (!frame) return;
 
-    // Fetch next 5 audio blobs
     get("/api/next5sounds", { frameId: frame._id }).then(({ bgms, onPlays }) => {
-      const newBlobs = new Map(preloadedBlobs);
-      
-      [...bgms, ...onPlays].forEach((link) => {
-        if (!newBlobs.has(link)) {
-          get("/api/audioAsBlob", { links: [link] }).then((blob) => {
-            const blobUrl = URL.createObjectURL(blob);
-            newBlobs.set(link, blobUrl);
-            setPreloadedBlobs(new Map(newBlobs));
-          });
-        }
+      setPreloadedBlobs((prevBlobs) => {
+        const newBlobs = new Map(prevBlobs);
+        [...bgms, ...onPlays].forEach((link) => {
+          if (!newBlobs.has(link)) {
+            get("/api/audioAsBlob", { links: [link] }).then((blob) => {
+              const blobUrl = URL.createObjectURL(blob);
+              newBlobs.set(link, blobUrl);
+              setPreloadedBlobs(new Map(newBlobs));
+            });
+          }
+        });
+        return newBlobs;
       });
     });
+  }, [frame]);
+
+  useEffect(() => {
+    if (!frame) return;
 
     setOnPlay(<AudioPlayer key={frame._id + "-play"} blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])} loops={false} />);
     
