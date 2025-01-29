@@ -3,7 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { get } from "../../utilities.js";
 
 import "../../utilities.css";
-import "./Skeleton.css";
+import "./Home.css";
 import NovelPreview from "../modules/novelPreview.jsx";
 
 const Home = () => {
@@ -18,7 +18,9 @@ const Home = () => {
         const publicNovels = res.novels;
 
         // Create the array of NovelPreview props
-        const arr = publicNovels.map((novel) => (<NovelPreview novelId={novel} secondId={undefined} userId={userId} type={"play"}/>));
+        const arr = publicNovels.map((novel) => (
+          <NovelPreview novelId={novel} secondId={undefined} userId={userId} type={"play"} />
+        ));
 
         setNovels(arr);
       } catch (error) {
@@ -33,25 +35,32 @@ const Home = () => {
 
   return (
     <>
-      <h1>Welcome to VNForge!</h1>
-      <p>
-        Sign in above and navigate to your profile to begin making visual
-        novels! Or check out some published ones:
+      <h1 className="sectionHeader">Welcome to VNForge!</h1>
+      <p className="sectionHeader">
+        Sign in above and navigate to your profile to begin making visual novels! Or check out some
+        published ones:
       </p>
 
-      <p>Make sure to allow audio autoplay on this site so you can hear the novels!</p>
+      <p className="sectionHeader">
+        Make sure to allow audio autoplay on this site so you can hear the novels!
+      </p>
 
-      {/* Show novels only if the user is logged in */}
       {userId ? (
-        <div>
+        <div className="sectionWrapper">
           {novels.length > 0 ? (
-            novels
+            <div className="container">
+              {novels.map((novel, index) => (
+                <div key={index} className="novelPreview">
+                  {novel}
+                </div>
+              ))}
+            </div>
           ) : (
-            <p>No novels available at the moment.</p>
+            <p className="notice">No novels available at the moment.</p>
           )}
         </div>
       ) : (
-        <p>Please log in to see published novels.</p>
+        <p className="notice">Please log in to see published novels.</p>
       )}
     </>
   );

@@ -40,7 +40,6 @@ const Player = () => {
 
     setTimeout(() => {
       window.scrollTo(0, 200);
-      console.log("scrolled");
     }, 100);
   }, [location.state]);
 
@@ -67,11 +66,23 @@ const Player = () => {
   useEffect(() => {
     if (!frame) return;
 
-    setOnPlay(<AudioPlayer key={frame._id + "-play"} blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])} loops={false} />);
-    
+    setOnPlay(
+      <AudioPlayer
+        key={frame._id + "-play"}
+        blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])}
+        loops={false}
+      />
+    );
+
     if (bgm?.props.blobUrl !== preloadedBlobs.get(frame.bgm?.[0])) {
       console.log("bgm is different");
-      setBgm(<AudioPlayer key={frame._id + "-bgm"} blobUrl={preloadedBlobs.get(frame.bgm?.[0])} loops={true} />);
+      setBgm(
+        <AudioPlayer
+          key={frame._id + "-bgm"}
+          blobUrl={preloadedBlobs.get(frame.bgm?.[0])}
+          loops={true}
+        />
+      );
     }
   }, [frame, preloadedBlobs]);
 

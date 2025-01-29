@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.novelPreview {
+  width: 18%;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.notice {
+  color: #888;
+  text-align: center;
+}
+
+.sectionHeader {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.sectionWrapper {
+  background-color: rgb(22, 65, 83);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+}

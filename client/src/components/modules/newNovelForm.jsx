@@ -22,16 +22,25 @@ const PopupForm = (props) => {
 
     const response = await post("/api/newNovel", formData, {});
 
-    navigate('/editor/' + props.userId, {
-        state: {
-            novelId: response.novelId
-        }
+    navigate("/editor/" + props.userId, {
+      state: {
+        novelId: response.novelId,
+      },
     });
   };
 
   return (
     <div>
-      <button onClick={() => setShowPopup(true)}>Create new project!</button>
+      <button
+        onClick={() => {
+          setShowPopup(true);
+          setTimeout(() => {
+            window.scrollTo(0, 500);
+          }, 100);
+        }}
+      >
+        Create new project!
+      </button>
 
       {showPopup && (
         <div className="popup">
