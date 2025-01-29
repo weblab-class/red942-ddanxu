@@ -95,7 +95,13 @@ const Player = () => {
         },
         replace: true,
       });
-    } else console.log("End of Novel!");
+    } else navigate("/player/" + novel.startFrameId, {
+      state: {
+        novelId: novel._id,
+        frameId: novel.startFrameId,
+      },
+      replace: true,
+    });
   };
 
   if (!frame) {
@@ -103,24 +109,24 @@ const Player = () => {
   }
 
   return (
-    <div className="visual-novel" style={{ backgroundImage: `url(${frame.background})` }}>
-      {onPlay}
-      {bgm}
-      {frame.spriteLeft && <img src={frame.spriteLeft} className="sprite-left" alt="sprite" />}
-      {frame.spriteMid && <img src={frame.spriteMid} className="sprite-mid" alt="sprite" />}
-      {frame.spriteRight && <img src={frame.spriteRight} className="sprite-right" alt="sprite" />}
-      {frame.text && (
-        <h3>
-          {frame.text.split("\n").map((line, index) => (
-            <React.Fragment key={index}>
-              {line}
-              <br />
-            </React.Fragment>
-          ))}
-        </h3>
-      )}
-      <button onClick={nextFrame}>next</button>
-    </div>
+<div className="visual-novel" style={{ backgroundImage: `url(${frame.background})` }}>
+  {onPlay}
+  {bgm}
+  {frame.spriteLeft && <img src={frame.spriteLeft} className="sprite-left" alt="sprite" />}
+  {frame.spriteMid && <img src={frame.spriteMid} className="sprite-mid" alt="sprite" />}
+  {frame.spriteRight && <img src={frame.spriteRight} className="sprite-right" alt="sprite" />}
+  {frame.text && (
+    <h3>
+      {frame.text.split("\n").map((line, index) => (
+        <React.Fragment key={index}>
+          {line}
+          <br />
+        </React.Fragment>
+      ))}
+    </h3>
+  )}
+  <button onClick={nextFrame}>next</button>
+</div>
   );
 };
 
