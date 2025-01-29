@@ -10,6 +10,7 @@ const Player = () => {
   const [frame, setFrame] = useState();
   const [novel, setNovel] = useState();
   const [user, setUser] = useState();
+  const [saveId, setSaveId] = useState();
   const [onPlay, setOnPlay] = useState();
   const [bgm, setBgm] = useState();
   const [preloadedBlobs, setPreloadedBlobs] = useState(new Map());
@@ -32,51 +33,76 @@ const Player = () => {
           userId: location.state.userId,
           novelId: location.state.novelId,
           frameId,
-        }).then();
+        }).then((res) => {
+          setSaveId(res.saveId);
+          console.log("saveId set to " + res.saveId);
+        });
+      } else {
+        setSaveId(location.state.saveId);
+        console.log("saveId set to (from l.s)" + location.state.saveId)
       }
-
       setUser(userObj);
     });
 
     setTimeout(() => {
       window.scrollTo(0, 200);
-      console.log("scrolled");
     }, 100);
   }, [location.state]);
 
   useEffect(() => {
     if (!frame) return;
 
+    let isMounted = true;
+
     get("/api/next5sounds", { frameId: frame._id }).then(({ bgms, onPlays }) => {
-      setPreloadedBlobs((prevBlobs) => {
-        const newBlobs = new Map(prevBlobs);
-        [...bgms, ...onPlays].forEach((link) => {
-          if (!newBlobs.has(link)) {
-            get("/api/audioAsBlob", { links: [link] }).then((blob) => {
-              const blobUrl = URL.createObjectURL(blob);
-              newBlobs.set(link, blobUrl);
-              setPreloadedBlobs(new Map(newBlobs));
-            });
-          }
-        });
-        return newBlobs;
+      const newBlobs = new Map(preloadedBlobs);
+
+      Promise.all(
+        [...bgms, ...onPlays].map((link) =>
+          newBlobs.has(link)
+            ? Promise.resolve()
+            : get("/api/audioAsBlob", { links: [link] }).then((blob) => {
+                const blobUrl = URL.createObjectURL(blob);
+                newBlobs.set(link, blobUrl);
+              })
+        )
+      ).then(() => {
+        if (isMounted) setPreloadedBlobs(new Map(newBlobs));
       });
     });
+
+    return () => {
+      isMounted = false;
+      preloadedBlobs.forEach((blobUrl) => URL.revokeObjectURL(blobUrl));
+    };
   }, [frame]);
 
   useEffect(() => {
     if (!frame) return;
 
-    setOnPlay(<AudioPlayer key={frame._id + "-play"} blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])} loops={false} />);
-    
+    setOnPlay(
+      <AudioPlayer
+        key={frame._id + "-play"}
+        blobUrl={preloadedBlobs.get(frame.onPlayAudio?.[0])}
+        loops={false}
+      />
+    );
+
     if (bgm?.props.blobUrl !== preloadedBlobs.get(frame.bgm?.[0])) {
-      console.log("bgm is different");
-      setBgm(<AudioPlayer key={frame._id + "-bgm"} blobUrl={preloadedBlobs.get(frame.bgm?.[0])} loops={true} />);
+      setBgm(
+        <AudioPlayer
+          key={frame._id + "-bgm"}
+          blobUrl={preloadedBlobs.get(frame.bgm?.[0])}
+          loops={true}
+        />
+      );
     }
   }, [frame, preloadedBlobs]);
 
-  const nextFrame = async () => {
+  const nextFrame = () => {
     if (frame.nextFrame) {
+      if (saveId !== "editor")
+        post("/api/nextFrameSave", { saveId: saveId, nextFrame: frame.nextFrame });
       navigate("/player/" + frame.nextFrame, {
         state: {
           novelId: novel._id,
@@ -84,7 +110,9 @@ const Player = () => {
         },
         replace: true,
       });
-    } else console.log("End of Novel!");
+    } else {
+      console.log("End of Novel!");
+    }
   };
 
   if (!frame) {

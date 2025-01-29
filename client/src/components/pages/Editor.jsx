@@ -35,10 +35,7 @@ const Editor = () => {
   };
 
   const nextFrame = async () => {
-    console.log("Going to next frame");
     if (frame.nextFrame != undefined) {
-      console.log("frame found, has id " + frame.nextFrame);
-
       refresh();
 
       navigate("/editor/" + frame.nextFrame, {
@@ -50,13 +47,27 @@ const Editor = () => {
         replace: true,
       });
     } else {
-      console.log("creating new frame");
       const next = await post("/api/nextFrame", { oldFrameId: frame._id });
 
       navigate("/editor/" + next.frameId, {
         state: {
           novelId: novel._id,
           frameId: next.frameId,
+          userId: location.state.userId,
+        },
+        replace: true,
+      });
+    }
+  };
+
+  const prevFrame = async () => {
+    if (frame.prevFrames[0] != undefined) {
+      refresh();
+
+      navigate("/editor/" + frame.prevFrames[0], {
+        state: {
+          novelId: novel._id,
+          frameId: frame.prevFrames[0],
           userId: location.state.userId,
         },
         replace: true,
@@ -74,6 +85,7 @@ const Editor = () => {
         novelId: novel._id,
         frameId: frame._id,
         userId: location.state.userId,
+        saveId: "Editing"
       },
     });
   };
@@ -120,6 +132,14 @@ const Editor = () => {
           <h1>Toggle Public</h1>
           <button onClick={togglePublic}>toggle</button>
         </div>
+      </div>
+
+      <div className="navigation-group">
+        <div className="prev-frame">
+          <h1>Previous Frame?</h1>
+          <button onClick={prevFrame}>back</button>
+        </div>
+
         <div className="next-frame">
           <h1>Next Frame?</h1>
           <button onClick={nextFrame}>next</button>

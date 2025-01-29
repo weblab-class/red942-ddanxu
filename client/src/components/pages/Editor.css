@@ -47,6 +47,18 @@ img {
   box-sizing: border-box; /* Prevents padding from increasing total width */
 }
 
+.navigation-group {
+  display: flex;
+  justify-content: center; /* Center the items */
+  margin-bottom: 20px;
+  padding: 0 15px; /* Padding added to prevent edges */
+  gap: 25%; /* Increased gap to make elements wider */
+  align-items: center;
+  width: 100%; /* Ensures the group takes the full width */
+  max-width: 100vw; /* Prevents overflow and horizontal scroll */
+  box-sizing: border-box; /* Prevents padding from increasing total width */
+}
+
 .text-select {
   flex: 0;
   padding-right: 20px; /* Increased padding to make it wider */
@@ -62,6 +74,12 @@ img {
 }
 
 .next-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.prev-frame {
   display: flex;
   flex-direction: column;
   align-items: flex-end;

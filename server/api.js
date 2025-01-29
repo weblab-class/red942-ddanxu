@@ -14,7 +14,7 @@ const path = require("path");
 
 // import models so we can interact with the database
 const User = require("./models/user.js");
-const { Novel } = require("./models/novels.js");
+const { Novel, Save } = require("./models/novels.js");
 const { Frame } = require("./models/frames.js");
 
 // import authentication library
@@ -204,6 +204,15 @@ router.get("/next5sounds", async (req, res) => {
 
   return res.status(200).send({bgms: bgms, onPlays: onPlays});
 })
+
+
+router.get("/frameFromSave", async (req, res) => {
+  const saveId = req.query.saveId;
+
+  const save = await Save.findById(saveId);
+  return res.status(200).send({frameId: save.currentFrameId});
+})
+
 
 //------------------POST-----------------------
 
@@ -414,13 +423,35 @@ router.post("/setText", async (req, res) => {
   return res.status(200).send(text);
 });
 
-//@TODO make this make a save
 router.post("/userPlayNew", async (req, res) => {
   const { userId, novelId, frameId } = req.body;
   const user = await User.findById(userId);
-  user.playing = [...(user.playing || []), { novelId: novelId, saveId: null }];
-  user.save();
-  return res.status(200);
+  const novel = await Novel.findById(novelId);
+  const save = new Save({
+    userId: userId,
+    novelId: novelId,
+    vars: novel.vars,
+    currentFrameId: frameId
+  });
+  const saveId = await save.save()
+  user.playing = [...(user.playing || []), { novelId: novelId, saveId: saveId }];
+  await user.save();
+  return res.status(200).send({saveId: saveId}) ;
+});
+
+router.post("/nextFrameSave", async (req, res) => {
+  const {saveId, nextFrame} = req.body;
+  console.log(saveId)
+  try {
+    const save = await Save.findById(saveId);
+    save.currentFrameId = nextFrame;
+    await save.save();
+  } catch (error) {
+    console.log(error)
+    return res.status(404).send("Save not found")
+  }
+  
+  return res.status(200).send({nextFrame: nextFrame});
 });
 
 //-----------------MISC----------------------------

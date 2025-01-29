@@ -30,21 +30,26 @@ const NovelPreview = (props) => {
                 userId: userId
             }
         });
-    } : () => {
-        if (secondId === null) {
+    } : async () => {
+        //@TODO check if the user has played it before then do checks
+        if (secondId === null || secondId === undefined) {
             navigate('/player/' + secondId, {
                 state: {
                     novelId: novelId,
                     frameId: undefined,
-                    userId: userId
+                    userId: userId,
+                    saveId: undefined
                 }
             });
         } else {
+            let frameId = await get('/api/frameFromSave', {saveId: secondId});
+            frameId = frameId.frameId;
             navigate('/player/' + secondId, {
                 state: {
                     novelId: novelId,
-                    frameId: secondId,
-                    userId: userId
+                    frameId: frameId,
+                    userId: userId,
+                    saveId: secondId
                 }
             });
         }
