@@ -41,7 +41,7 @@ const Home = () => {
         published ones:
       </p>
 
-      <p className="sectionHeader">
+      <p className="sectionHeader" style={{ color: "#BB8555" }}>
         Make sure to allow audio autoplay on this site so you can hear the novels!
       </p>
 

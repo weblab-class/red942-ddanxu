@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { get } from "../../utilities";
 import NovelPreview from "../modules/novelPreview";
 import PopupForm from "../modules/newNovelForm";
-import './Profile.css';
+import "./Profile.css";
 
 const Profile = () => {
   let props = useParams();
@@ -28,13 +28,27 @@ const Profile = () => {
     }
     for (let i = 0; i < arr.length; i++) {
       if (!editing)
-        arr[i] = <NovelPreview novelId={arr[i].novelId} secondId={arr[i].saveId} userId={props.userId} type="play" key={arr[i].novelId} />;
+        arr[i] = (
+          <NovelPreview
+            novelId={arr[i].novelId}
+            secondId={arr[i].saveId}
+            userId={props.userId}
+            type="play"
+            key={arr[i].novelId}
+          />
+        );
       else
         arr[i] = (
-          <NovelPreview novelId={arr[i].novelId} secondId={arr[i].frameId} userId={props.userId} type="edit" key={arr[i].novelId} />
+          <NovelPreview
+            novelId={arr[i].novelId}
+            secondId={arr[i].frameId}
+            userId={props.userId}
+            type="edit"
+            key={arr[i].novelId}
+          />
         );
     }
-  
+
     return { array: arr, endIndex: startIndex + arr.length };
   };
 
@@ -69,37 +83,46 @@ const Profile = () => {
   };
 
   return (
-<div>
-  <h1>Hello {user.name}!</h1>
-  <section className="group-container">
-    <h3>You are currently playing:</h3>
-    <span className="horizontal-group">
-      {playing.map((item, index) => (
-        <span key={index}>{item}</span>
-      ))}
-    </span>
-    <div className="button-container">
-      {playingIndex > 0 && <button onClick={handlePreviousPlaying}>Go Back</button>}
-      {user.playing.length > newPlayingIndex && <button onClick={handleNextPlaying}>Next page</button>}
-    </div>
-  </section>
+    <div>
+      <h1>Hello {user.name}!</h1>
 
-  <section className="group-container">
-    <h3>You are currently editing:</h3>
-    <span className="horizontal-group">
-      {editing.map((item, index) => (
-        <span key={index}>{item}</span>
-      ))}
-    </span>
-    <div className="button-container">
-      {editingIndex > 0 && <button onClick={handlePreviousEditing}>Go Back</button>}
-      {user.editing.length > newEditingIndex && <button onClick={handleNextEditing}>Next page</button>}
-    </div>
+      <section className="group-container">
+        <h3>You are currently playing:</h3>
+        <span className="horizontal-group">
+          {playing && playing.length > 0 ? (
+            playing.map((item, index) => <span key={index}>{item}</span>)
+          ) : (
+            <span>Not playing any novels yet</span>
+          )}
+        </span>
+        <div className="button-container">
+          {playingIndex > 0 && <button onClick={handlePreviousPlaying}>Go Back</button>}
+          {playing && user.playing.length > newPlayingIndex && (
+            <button onClick={handleNextPlaying}>Next page</button>
+          )}
+        </div>
+      </section>
 
-    <h2>Start your next visual novel:</h2>
-    <PopupForm userId={props.userId} />
-  </section>
-</div>
+      <section className="group-container">
+        <h3>You are currently editing:</h3>
+        <span className="horizontal-group">
+          {editing && editing.length > 0 ? (
+            editing.map((item, index) => <span key={index}>{item}</span>)
+          ) : (
+            <span>Not editing any novels yet</span>
+          )}
+        </span>
+        <div className="button-container">
+          {editingIndex > 0 && <button onClick={handlePreviousEditing}>Go Back</button>}
+          {editing && user.editing.length > newEditingIndex && (
+            <button onClick={handleNextEditing}>Next page</button>
+          )}
+        </div>
+
+        <h2>Start your next visual novel:</h2>
+        <PopupForm userId={props.userId} />
+      </section>
+    </div>
   );
 };
 
